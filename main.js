@@ -15,9 +15,18 @@ var app = http.createServer(function(request, response){
       var html = template.HTML(`a {
         color : black;
         text-decoration : none;
+      }
+      #menuwrap
+      {
+        width : 600px;
+        border-top : 3px solid black;
+        border-bottom : 3px solid black;
+        padding : 5px;
       }`,
-      `<a href="/login">login </a><a href="/join">join </a>
-      <br><a href="/create">create</a>`,
+      `<div id="menuwrap">
+        <div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>
+        <div id="menu" style="text-align:left;"><a href="/board">board</a></div>
+      </div>`,
       `<h3>This is main page</h3>`);
 
       response.writeHead(200);
@@ -60,6 +69,7 @@ var app = http.createServer(function(request, response){
         display : grid;
         border : 3px solid black;
         width : 400px;
+        padding : 10px;
       }`,
       '',`
     <h3>Join Session</h3>
@@ -97,4 +107,4 @@ var app = http.createServer(function(request, response){
 
 
 });
-app.listen(3000);
+app.listen(80);
