@@ -19,13 +19,12 @@ var app = http.createServer(function(request, response){
       }
       #menuwrap
       {
-        width : 600px;
+        //width : 600px;
         border-top : 3px solid black;
         border-bottom : 3px solid black;
         padding : 5px;
       }`,
       `<div id="menuwrap">
-        <div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>
         <div id="menu" style="text-align:left;"><a href="/board">board</a></div>
       </div>`,
       `<h3>This is main page</h3>`);
@@ -39,7 +38,10 @@ var app = http.createServer(function(request, response){
     // 관리자일 경우, 교수/지도자 일 경우, 학생일 경우
 
   } else if(pathname ==='/login'){
-    var html = template.HTML('',
+    var html = template.HTML(` a {
+       color : black;
+       text-decoration : none;
+     }`,
     '',`
     <h3>Login Session</h3>
     <form action="/login_process" method="post">
@@ -103,34 +105,25 @@ var app = http.createServer(function(request, response){
       text-decoration : none;
     }
     #menuwrap{
-      width : 600px;
+      //width : auto;
       border-top : 3px solid black;
       border-bottom : 3px solid black;
       padding : 5px;
     }
-    #boardlist{
-      width : 100px;
-      margin : 0px;
-      border-right: 3px solid;
-      padding : 10px;
-      padding-left : 30px;
-    }
     #boardwrap{
-      display : grid;
-      grid-template : auto / 140px auto;
-      grid-gap : 3px;
-    }
-    `,
+      //display : grid;
+      //grid-template : auto / 140px auto;
+      //grid-gap : 3px;
+    }`,
     `<div id="menuwrap">
-      <div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>
-      <div id="menu" style="text-align:left; font-weight:bold;"><a href="/board">board</a></div>
+        <div id="menu" style="text-align:left; font-weight:bold;"><a href="/board">board</a></div>
     </div>`,
     `
-    <div id=boardwrap>
-    <ul id=boardlist>
-      <li>beginner</li>
-    </ul>
-    <h3 style="padding-left:5px;">This is board page</h3>
+    <div id="mainwrap">
+      <div>
+        <h3 style="padding-left:5px;">This is board page</h3>
+        <input type="button" onclick="/create" value="create"></input>
+      </div>
     </div>
     `
   );
