@@ -2,7 +2,8 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
-
+//var express = require('express');
+// express 사용하고, 포트를 80번으로 대체해봐야함
 var path = require('path');
 var template = require('./lib/template.js');
 
@@ -95,6 +96,45 @@ var app = http.createServer(function(request, response){
     // 가입 끝나면 가입 완료되었다는 메시지도 출력
     response.writeHead(300);
     //response.writeHead(302, {Location : `/`});
+    response.end(html);
+  } else if(pathname === '/board'){
+    var html = template.HTML(`a {
+      color : black;
+      text-decoration : none;
+    }
+    #menuwrap{
+      width : 600px;
+      border-top : 3px solid black;
+      border-bottom : 3px solid black;
+      padding : 5px;
+    }
+    #boardlist{
+      width : 100px;
+      margin : 0px;
+      border-right: 3px solid;
+      padding : 10px;
+      padding-left : 30px;
+    }
+    #boardwrap{
+      display : grid;
+      grid-template : auto / 140px auto;
+      grid-gap : 3px;
+    }
+    `,
+    `<div id="menuwrap">
+      <div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>
+      <div id="menu" style="text-align:left; font-weight:bold;"><a href="/board">board</a></div>
+    </div>`,
+    `
+    <div id=boardwrap>
+    <ul id=boardlist>
+      <li>beginner</li>
+    </ul>
+    <h3 style="padding-left:5px;">This is board page</h3>
+    </div>
+    `
+  );
+    response.writeHead(300);
     response.end(html);
   }
 
