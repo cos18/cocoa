@@ -48,7 +48,7 @@ var app = http.createServer(function(request, response){
       <p>ID <input type="text" name="ID" placeholder="ID"></p>
       <p>PW <input type="password" name="password" maxlength=14 placeholder="password"></p>
       <p>
-        <input type="submit">
+        <input type="submit" value=LOGIN>
       </p>
     </form>
     `);
@@ -68,7 +68,7 @@ var app = http.createServer(function(request, response){
          color : black;
          text-decoration : none;
        }
-      #grid{
+      #join{
         display : grid;
         border : 3px solid black;
         width : 400px;
@@ -76,16 +76,20 @@ var app = http.createServer(function(request, response){
       }`,
       '',`
     <h3>Join Session</h3>
-    <form method="post" id="grid" onsubmit="return checkForm(this);">
+    <form method="post" id="join" action="/join_process" onsubmit="return checkForm(this);">
       <p>ID <input type="email" name="ID" placeholder="Email"></p>
       <p>PW <input type="password" name="pwd" minlength=8 maxlength=14 placeholder="8~14 letters"></p>
       <p>CHKPW <input type="password" name="chkpwd" minlength=8 maxlength=14 placeholder="8~14 letters"></p>
       <p>Name <input type="text" name="username" placeholder="name"></p>
       <p>Nickname <input type="text" name="nickname" maxlength=10 placeholder="max 16"></p>
-      <p>Group <input type="text" name="group" placeholder="group"></p>
-
+      <p>Group</p>
+        <fieldset>
+          <span><input type="radio" name="group" value="student" checked/>Student</span>
+          <span><input type="radio" name="group" value="professor" />Professor</span>
+          <span><input type="radio" name="group" value="other" />Other</span>
+        </fieldset>
       <p>
-        <input type="submit">
+        <input type="submit" value="JOIN">
       </p>
     </form>
     `);
@@ -94,11 +98,34 @@ var app = http.createServer(function(request, response){
     response.writeHead(200);
     response.end(html);
   } else if(pathname === '/join_process'){
+    /*
+    현재 임시로 member 폴더를 만들어서 새로 파일을 만들어 저장했습니다
+    */
+    var body = '';
+        request.on('data', function(data){    // 웹브라우저가 host방식으로 data 전송할때 data가 많으면 그 데이터를 한번에 처리하기에 힘들 수 있기에, 이런 경우에 사용하는 방법인데, data방식은 callback에 들어가있잖아요. 서버에서 조각을 받을때마다 callback함수 호출하기로 했고, 할때마다 data인자를 통해 수신한 정보를 주기로 약속했다.
+            body = body + data;   // callback이 실행될때 마다 인자로 넘겨진 data를 추가하는데. 이게 너무 많아버리면 끊어버리는 코드가 따로 있습니다만 여기에는 포함 안했습니다.
+        });
+        request.on('end', function(){   // 들어올 정보가 없다면 end 다음에 있는 callback이 실행되도록 함.
+            var post = qs.parse(body);    // parse를 통해 객체화 시켜서, post에 우리가 submit으로 제출한 POST의 내용이 담겨있을거다.
+            var description="";
+            var id = post.ID;
+            description = description + "{id : " + id + "}"+ "{pw : " + post.pwd + "}"+ "{name : " + post.username + "}" + "{nickname : " + post.nickname + "}" + "{group : " + post.group + "}";
+            // 이 아래는 파일로 저장하는 법
+
+            fs.writeFile(`member/${id}`, description, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
+              // 파일 생성이 끝난후에 이동하는 페이지를 다시 설정해주는 리다이렉션 작업을 실행하는 코드가 아래에 있습니다.
+              alert("Join Success!");
+              response.writeHead(302, {Location : `/`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
+              response.end();
+            })
+        });
+        // 가입시에 이미 있는 아이디는 못가입하게 확인하는 것도 필요
+
+
 
     // 가입 끝나면 가입 완료되었다는 메시지도 출력
-    response.writeHead(300);
     //response.writeHead(302, {Location : `/`});
-    response.end(html);
+    //response.end(html);
   } else if(pathname === '/board'){
     var html = template.HTML(`a {
       color : black;
