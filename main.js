@@ -6,6 +6,7 @@ var qs = require('querystring');
 // express 사용하고, 포트를 80번으로 대체해봐야함
 var path = require('path');
 var template = require('./lib/template.js');
+var func = require('./lib/function.js');
 
 var app = http.createServer(function(request, response){
   var _url = request.url;
@@ -13,10 +14,7 @@ var app = http.createServer(function(request, response){
   var pathname = url.parse(_url, true).pathname;
   if(pathname === '/'){  // 메인페이지인 경우
     if(queryData.id===undefined){// undefined면 home임.
-      var html = template.HTML(`a {
-        color : black;
-        text-decoration : none;
-      }
+      var html = template.HTML(`
       #menuwrap
       {
         //width : 600px;
@@ -32,10 +30,7 @@ var app = http.createServer(function(request, response){
       response.writeHead(200);
       response.end(html);
     } else {
-      var html = template.HTML(`a {
-        color : black;
-        text-decoration : none;
-      }
+      var html = template.HTML(`
       #menuwrap
       {
         //width : 600px;
@@ -57,10 +52,7 @@ var app = http.createServer(function(request, response){
     // 관리자일 경우, 교수/지도자 일 경우, 학생일 경우
 
   } else if(pathname ==='/login'){
-    var html = template.HTML(` a {
-       color : black;
-       text-decoration : none;
-     }`,
+    var html = template.HTML('',
     '',`
     <h3>Login Session</h3>
     <form action="/login_process" method="post">
@@ -96,25 +88,21 @@ var app = http.createServer(function(request, response){
                 response.writeHead(302, {Location : `/login`});
                 response.end();
               }
-
               // id와 비밀번호가 일치한다면 그룹에 맞게 로그인 권한을 부여하고 메인 페이지로
               // 일치하지 않을경우 에러메시지 출력하면서 다시 로그인 창으로
             });
           });
         });
   } else if(pathname ==='/join'){
+    var check = func.checkForm(); // 더러운 코드인가..
     var html = template.HTML(`
-       a {
-         color : black;
-         text-decoration : none;
-       }
       #join{
         display : grid;
         border : 3px solid black;
         width : 400px;
         padding : 10px;
       }`,
-      '',`
+      `<script>${check}</script>`,`
     <h3>Join Session</h3>
     <form method="post" id="join" action="/join_process" onsubmit="return checkForm(this);">
       <p>ID <input type="email" name="ID" placeholder="Email"></p>
@@ -122,6 +110,7 @@ var app = http.createServer(function(request, response){
       <p>CHKPW <input type="password" name="chkpwd" minlength=8 maxlength=14 placeholder="8~14 letters"></p>
       <p>Name <input type="text" name="username" placeholder="name"></p>
       <p>Nickname <input type="text" name="nickname" maxlength=10 placeholder="max 16"></p>
+      <p>Work at <input type="text" name="belong" placeholder="Belong"></p>
       <p>Group</p>
         <fieldset>
           <span><input type="radio" name="group" value="student" checked/>Student</span>
@@ -149,7 +138,7 @@ var app = http.createServer(function(request, response){
             var post = qs.parse(body);    // parse를 통해 객체화 시켜서, post에 우리가 submit으로 제출한 POST의 내용이 담겨있을거다.
             var description="";
             var id = post.ID;
-            description = description + "id=" + id + "&"+ "pw=" + post.pwd + "&"+ "name=" + post.username + "&" + "nickname=" + post.nickname + "&" + "group=" + post.group;
+            description = description + "id=" + id + "&"+ "pw=" + post.pwd + "&" + "name=" + post.username + "&" + "nickname=" + post.nickname + "&" + "belong=" + post.belong + "&" + "group=" + post.group;
             // 이 아래는 파일로 저장하는 법
             // 가입시에 이미 있는 아이디는 못가입하게 확인하는 것도 필요
             fs.writeFile(`member/${id}`, description, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
@@ -160,14 +149,10 @@ var app = http.createServer(function(request, response){
         });
 
 
-
     //response.writeHead(302, {Location : `/`});
     //response.end(html);
   } else if(pathname === '/board'){
-    var html = template.HTML(`a {
-      color : black;
-      text-decoration : none;
-    }
+    var html = template.HTML(`
     #menuwrap{
       //width : auto;
       border-top : 3px solid black;
@@ -185,14 +170,21 @@ var app = http.createServer(function(request, response){
     `
     <div id="mainwrap">
       <div>
+      여기에 만들어놓은 문제들이 차례대로 보여지도록 코드를 짜야겠지요
         <h3 style="padding-left:5px;">This is board page</h3>
-        <input type="button" onclick="/create" value="create"></input>
+        <input type="button" onclick="location.href='/create';" value="create" />
       </div>
     </div>
     `
   );
     response.writeHead(300);
     response.end(html);
+  } else if(pathname==='/create'){
+
+
+
+    response.writeHead(300);
+    response.end();
   }
 
 
