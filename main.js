@@ -11,6 +11,7 @@ var mysql_con = require('./db/db_con')();
 var cookie = require('cookie');
 
 var connection = mysql_con.init();
+var dbcon_sync = mysql_con.init_sync();
 
 function authIsOwner(request,response){
   isOwner = false;
@@ -19,15 +20,13 @@ function authIsOwner(request,response){
     cookies = cookie.parse(request.headers.cookie);
   }
   // cookies의 id로 DB 접속해서 pw가 cookies의 status와 일치하면 true반환
+  dbcon_sync.query("USE cocoa_web");
   var stmt = `select * from Member where numid='${cookies.id}'`;
-  connection.query(stmt, function (err, result) {
-    console.log('access');
-    result=result[0];
-    if(cookies.status === result.passwd){
-      isOwner = true;
-    }
-    return isOwner;
-  });
+  var result = dbcon_sync.query(stmt)[0];
+  if(typeof(result) !== "undefined" && cookies.status === result.passwd){
+    isOwner = true;
+  }
+  return isOwner;
 }
 
 function topbar(request, response){

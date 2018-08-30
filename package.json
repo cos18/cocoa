@@ -12,7 +12,8 @@
     "gcc": "^1.0.2",
     "hackerearth-node": "^2.3.9",
     "mysql": "latest",
-    "platform-tools": "^0.3.1"
+    "platform-tools": "^0.3.1",
+    "sync-mysql": "^3.0.1"
   },
   "devDependencies": {},
   "scripts": {
