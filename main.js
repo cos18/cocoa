@@ -154,7 +154,7 @@ var app = http.createServer(function(request, response){
     //response.writeHead(302, {Location : `/`});
     //response.end(html);
   } else if(pathname === '/board'){
-    
+
     var stmt = 'select * from Problem';
     connection.query(stmt, function (err, result) {
       console.log(result);
@@ -190,13 +190,23 @@ var app = http.createServer(function(request, response){
       response.end(html);
     });
   } else if(pathname === '/board/'){
-    // 현재 이부분에 board/{문제번호} 주소인 경우 그 문제에 해당하는 정보를 출력하는 페이지를 만들면 될 것 같습니다
+      if(queryData.id === undefined){
+        response.writeHead(200);
+        response.end("No No");
+    } else{
+      // 현재 이부분에 board/{문제번호} 주소인 경우 그 문제에 해당하는 정보를 출력하는 페이지를 만들면 될 것 같습니다
+      var html = template.HTML('','',`
 
-    console.log('success');
+      <h3>Success!</h3>
 
-    response.writeHead(300);
-    response.end();
-  } else if(pathname==='/create'){
+      `);
+      // 이 위의 부분에 표시할 html코드를 만들어야합니다.
+      console.log('success');
+
+      response.writeHead(200);
+      response.end(html);
+    }
+}else if(pathname==='/create'){
       var html = template.HTML(`
         #writeboard{
           border : 3px solid;
@@ -213,10 +223,6 @@ var app = http.createServer(function(request, response){
           <input type="text" name="pb_title" placeholder="Name"></input>
           <p>Problem Info</p>
           <textarea name="pb_info" style="min-width:500px; min-height:150px;" placeholder="type information about problem"></textarea>
-          <p>Input Testcase</p>
-          <textarea name="input_test" style="min-width:500px; min-height:100px;" placeholder="Input Testcase"></textarea>
-          <p>Output Testcase</p>
-          <textarea name="output_test" style="min-width:500px; min-height:100px;" placeholder="Output Testcase"></textarea>
           <p>Input</p>
           <textarea name="input" style="min-width:500px; min-height:150px;" placeholder="Input"></textarea>
           <p>Output</p>
@@ -240,19 +246,28 @@ var app = http.createServer(function(request, response){
         });
         request.on('end', function(){   // 들어올 정보가 없다면 end 다음에 있는 callback이 실행되도록 함.
             var post = qs.parse(body);    // parse를 통해 객체화 시켜서, post에 우리가 submit으로 제출한 POST의 내용이 담겨있을거다.
-            var description="";
+            var input="";
+            var output="";
             var pb_title = post.pb_title;
             // 문제번호도 자동 생성해서 추가했으면 좋겠네요
             // 저장하는 방법, 불러오는 방법 정해져야 할 거 같아요
-            description = description + "title=" + pb_title + "&"+ "info=" + post.pb_info + "&" + "input_test=" + post.input_test + "&" + "output_test=" + post.output_test + "&" + "input=" + post.input + "&" + "output=" + post.output;
-            description = description + "&"+ "limit_time=" + post.lim_time + "&" + "limit_memory=" + post.lim_mem;
-            // 이 아래는 파일로 저장하는 법
-            // 가입시에 이미 있는 아이디는 못가입하게 확인하는 것도 필요
-            fs.writeFile(`problem/${pb_title}`, description, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
-              // 파일 생성이 끝난후에 이동하는 페이지를 다시 설정해주는 리다이렉션 작업을 실행하는 코드가 아래에 있습니다.
-              response.writeHead(302, {Location : `/board`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
-              response.end();
+            input = input + post.input;
+            output = output + post.output;
+
+            // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
+
+            if (!fs.existsSync(`./problem/${pb_title}`)){
+                fs.mkdirSync(`./problem/${pb_title}`);
+              }
+            fs.writeFile(`problem/${pb_title}/input.txt`, input, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
             });
+            // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
+            fs.writeFile(`problem/${pb_title}/output.txt`, output, 'utf8', function(err){
+            });
+            // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
+
+            response.writeHead(302, {Location : `/board`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
+            response.end();
         });
   }
 
