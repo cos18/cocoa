@@ -191,8 +191,9 @@ var app = http.createServer(function(request, response){
     });
   } else if(pathname === '/board/'){
       if(queryData.id === undefined){
-        response.writeHead(200);
-        response.end("No No");
+        alert("Wrong Direction");
+        response.writeHead(302, {Location : `/board`});
+        response.end();
     } else{
       // 현재 이부분에 board/{문제번호} 주소인 경우 그 문제에 해당하는 정보를 출력하는 페이지를 만들면 될 것 같습니다
       var html = template.HTML('','',`
@@ -250,8 +251,8 @@ var app = http.createServer(function(request, response){
         var find_que = 'SELECT * FROM Problem ORDER BY pb_id DESC LIMIT 1;';
         connection.query(find_que, function (err, result) {
           console.log(result);
-          var pb_id = parseInt(result[0].pb_id);
-          var que = `INSERT INTO Problem (pb_id, title, lim_time, lim_mem, hint_num) VALUES(${pb_id+1}, "${post.pb_title}", ${post.lim_time}, ${post.lim_mem}, ${post.hint_num});`;
+          var pb_id = parseInt(result[0].pb_id)+1;
+          var que = `INSERT INTO Problem (pb_id, title, lim_time, lim_mem, hint_num) VALUES(${pb_id}, "${post.pb_title}", ${post.lim_time}, ${post.lim_mem}, ${post.hint_num});`;
           connection.query(que, function (err, result) {
             console.log(result);
             var input="";
@@ -263,16 +264,18 @@ var app = http.createServer(function(request, response){
             output = output + post.output;
 
             // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
+            if (!fs.existsSync(`./problem`)){
+                fs.mkdirSync(`./problem`);
+              } // problem 폴더 확인
+            if (!fs.existsSync(`./problem/${pb_id}`)){
+                fs.mkdirSync(`./problem/${pb_id}`);
+              } // 해당 id 폴더 확인
+            fs.writeFile(`problem/${pb_id}/input.txt`, input, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
+            });
 
-            if (!fs.existsSync(`./problem/${pb_title}`)){
-                fs.mkdirSync(`./problem/${pb_title}`);
-              }
-            fs.writeFile(`problem/${pb_title}/input.txt`, input, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
+            fs.writeFile(`problem/${pb_id}/output.txt`, output, 'utf8', function(err){
             });
-            // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
-            fs.writeFile(`problem/${pb_title}/output.txt`, output, 'utf8', function(err){
-            });
-            // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
+
             response.writeHead(302, {Location : `/board`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
             response.end();
           });
