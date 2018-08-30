@@ -190,7 +190,7 @@ var app = http.createServer(function(request, response){
       response.writeHead(200);
       response.end(html);
     });
-  } 
+  }
   else if(pathname.substr(0,7) === "/board/" && pathname.substring(7,)!==""){
     var pb_id = pathname.substring(7,);
     var stmt = `select * from Problem where pb_id=${pb_id}`;
@@ -262,22 +262,32 @@ var app = http.createServer(function(request, response){
             // 저장하는 방법, 불러오는 방법 정해져야 할 거 같아요
             input = input + post.input;
             output = output + post.output;
-
+            info = info + post.pb_info;
             // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
             if (!fs.existsSync(`./problem/${pb_id}`)){
                 fs.mkdirSync(`./problem/${pb_id}`);
               } // 해당 id 폴더 확인
-            fs.writeFile(`problem/${pb_id}/input.txt`, input, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
+            fs.mkdirSync(`./problem/${pb_id}/input`);
+            fs.writeFile(`problem/${pb_id}/input/1.txt`, input, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
             });
 
-            fs.writeFile(`problem/${pb_id}/output.txt`, output, 'utf8', function(err){
+            fs.mkdirSync(`./problem/${pb_id}/output`);
+            fs.writeFile(`problem/${pb_id}/output/1.txt`, output, 'utf8', function(err){
+            });
+
+            fs.writeFile(`problem/${pb_id}/info.txt`, info , 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
             });
 
             response.writeHead(302, {Location : `/board`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
             response.end();
           });
         });
+<<<<<<< HEAD
     });
+=======
+      });
+
+>>>>>>> bcbae4476dd1dbc9137d428675d0c1406bb32fd1
   }
 });
 app.listen(80);
