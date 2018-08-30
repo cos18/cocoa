@@ -157,7 +157,7 @@ var app = http.createServer(function(request, response){
     
     var stmt = 'select * from Problem';
     connection.query(stmt, function (err, result) {
-      console.log(result);
+      //console.log(result);
       var list = template.problem_list(result);
       console.log("success");
       var html = template.HTML(`
@@ -223,6 +223,7 @@ var app = http.createServer(function(request, response){
           <textarea name="output" style="min-width:500px; min-height:150px;" placeholder="Output"></textarea>
           <p>Limit Time<input type="text" name="lim_time" style="margin-left:10px;" placeholder="ms"></input></p>
           <p>Limit Memory<input type="text" name="lim_mem" style="margin-left:10px;" placeholder="MB"></input></p>
+          <p>Hint(shown in page) Number<input type="text" name="hint_num" style="margin-left:10px;" placeholder="number"></input></p>
           <input type="submit" value="create"></input>
         </form>
       </div>
@@ -235,25 +236,34 @@ var app = http.createServer(function(request, response){
     파일들로 다 저장해봅시다
     */
     var body = '';
-        request.on('data', function(data){    // 웹브라우저가 host방식으로 data 전송할때 data가 많으면 그 데이터를 한번에 처리하기에 힘들 수 있기에, 이런 경우에 사용하는 방법인데, data방식은 callback에 들어가있잖아요. 서버에서 조각을 받을때마다 callback함수 호출하기로 했고, 할때마다 data인자를 통해 수신한 정보를 주기로 약속했다.
-            body = body + data;   // callback이 실행될때 마다 인자로 넘겨진 data를 추가하는데. 이게 너무 많아버리면 끊어버리는 코드가 따로 있습니다만 여기에는 포함 안했습니다.
+    request.on('data', function(data){    // 웹브라우저가 host방식으로 data 전송할때 data가 많으면 그 데이터를 한번에 처리하기에 힘들 수 있기에, 이런 경우에 사용하는 방법인데, data방식은 callback에 들어가있잖아요. 서버에서 조각을 받을때마다 callback함수 호출하기로 했고, 할때마다 data인자를 통해 수신한 정보를 주기로 약속했다.
+        body = body + data;   // callback이 실행될때 마다 인자로 넘겨진 data를 추가하는데. 이게 너무 많아버리면 끊어버리는 코드가 따로 있습니다만 여기에는 포함 안했습니다.
+    });
+    request.on('end', function(){   // 들어올 정보가 없다면 end 다음에 있는 callback이 실행되도록 함.
+        var post = qs.parse(body);    // parse를 통해 객체화 시켜서, post에 우리가 submit으로 제출한 POST의 내용이 담겨있을거다.
+        var find_que = 'SELECT * FROM Problem ORDER BY pb_id DESC LIMIT 1;';
+        connection.query(find_que, function (err, result) {
+          console.log(result);
+          var pb_id = parseInt(result[0].pb_id);
+          var que = `INSERT INTO Problem (pb_id, title, lim_time, lim_mem, hint_num) VALUES(${pb_id+1}, "${post.pb_title}", ${post.lim_time}, ${post.lim_mem}, ${post.hint_num});`;
+          connection.query(que, function (err, result) {
+            console.log(result);
+            response.writeHead(302, {Location : `/board`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
+            response.end();
+          });
         });
-        request.on('end', function(){   // 들어올 정보가 없다면 end 다음에 있는 callback이 실행되도록 함.
-            var post = qs.parse(body);    // parse를 통해 객체화 시켜서, post에 우리가 submit으로 제출한 POST의 내용이 담겨있을거다.
-            var description="";
-            var pb_title = post.pb_title;
-            // 문제번호도 자동 생성해서 추가했으면 좋겠네요
-            // 저장하는 방법, 불러오는 방법 정해져야 할 거 같아요
-            description = description + "title=" + pb_title + "&"+ "info=" + post.pb_info + "&" + "input_test=" + post.input_test + "&" + "output_test=" + post.output_test + "&" + "input=" + post.input + "&" + "output=" + post.output;
-            description = description + "&"+ "limit_time=" + post.lim_time + "&" + "limit_memory=" + post.lim_mem;
-            // 이 아래는 파일로 저장하는 법
-            // 가입시에 이미 있는 아이디는 못가입하게 확인하는 것도 필요
-            fs.writeFile(`problem/${pb_title}`, description, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
-              // 파일 생성이 끝난후에 이동하는 페이지를 다시 설정해주는 리다이렉션 작업을 실행하는 코드가 아래에 있습니다.
-              response.writeHead(302, {Location : `/board`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
-              response.end();
-            });
+        /*
+        description = description + "title=" + pb_title + "&"+ "info=" + post.pb_info + "&" + "input_test=" + post.input_test + "&" + "output_test=" + post.output_test + "&" + "input=" + post.input + "&" + "output=" + post.output;
+        description = description + "&"+ "limit_time=" + post.lim_time + "&" + "limit_memory=" + post.lim_mem;
+        // 이 아래는 파일로 저장하는 법
+        // 가입시에 이미 있는 아이디는 못가입하게 확인하는 것도 필요
+        fs.writeFile(`problem/${pb_title}`, description, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
+          // 파일 생성이 끝난후에 이동하는 페이지를 다시 설정해주는 리다이렉션 작업을 실행하는 코드가 아래에 있습니다.
+          response.writeHead(302, {Location : `/board`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
+          response.end();
         });
+        */
+    });
   }
 
 
