@@ -153,8 +153,8 @@ var app = http.createServer(function(request, response){
     //response.end(html);
   } else if(pathname === '/board'){
     fs.readdir('./problem', function(error,filelist){
-      console.log(filelist);
-        if(filelist != undefined){
+      console.log(filelist[0]);
+        if(filelist != ""){
             var list = template.problem_list(filelist);
             console.log("success");
           }
