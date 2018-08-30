@@ -7,6 +7,9 @@ var qs = require('querystring');
 var path = require('path');
 var template = require('./lib/template.js');
 var func = require('./lib/function.js');
+var mysql_con = require('./db/db_con')();
+
+var connection = mysql_con.init();
 
 var app = http.createServer(function(request, response){
   var _url = request.url;
@@ -26,7 +29,6 @@ var app = http.createServer(function(request, response){
         <div id="menu" style="text-align:left;"><a href="/board">board</a></div>
       </div>`,
       `<h3>This is main page</h3>`);
-
       response.writeHead(200);
       response.end(html);
     } else {
@@ -152,18 +154,13 @@ var app = http.createServer(function(request, response){
     //response.writeHead(302, {Location : `/`});
     //response.end(html);
   } else if(pathname === '/board'){
-    fs.readdir('./problem', function(error,filelist){
-      console.log(filelist);
-        if(filelist != undefined){
-            var list = template.problem_list(filelist);
-            console.log("success");
-          }
-        else {
-          var list = '<h3 style="padding-left:5px;">This is board page</h3>';
-          console.log("Fail");
-        }
-
-        var html = template.HTML(`
+    
+    var stmt = 'select * from Problem';
+    connection.query(stmt, function (err, result) {
+      console.log(result);
+      var list = template.problem_list(result);
+      console.log("success");
+      var html = template.HTML(`
         #menuwrap{
           //width : auto;
           border-top : 3px solid black;
@@ -189,9 +186,9 @@ var app = http.createServer(function(request, response){
         </div>
         `
       );
-      response.writeHead(300);
+      response.writeHead(200);
       response.end(html);
-    })
+    });
   } else if(pathname === '/board/'){
     // 현재 이부분에 board/{문제번호} 주소인 경우 그 문제에 해당하는 정보를 출력하는 페이지를 만들면 될 것 같습니다
 
