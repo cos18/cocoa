@@ -1,0 +1,30 @@
+{
+  "name": "cocoa",
+  "version": "1.0.0",
+  "description": "cocoa npm",
+  "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "compile-run": "^1.2.2",
+    "gcc": "^1.0.2",
+    "hackerearth-node": "^2.3.9",
+    "mysql": "latest",
+    "platform-tools": "^0.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cos18/cocoa.git"
+  },
+  "author": "skku_comedu_psycoder",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cos18/cocoa/issues"
+  },
+  "homepage": "https://github.com/cos18/cocoa#readme"
+}
