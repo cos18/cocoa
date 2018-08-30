@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "compile-run": "^1.2.2",
+    "cookie": "^0.3.1",
     "gcc": "^1.0.2",
     "hackerearth-node": "^2.3.9",
     "mysql": "latest",
