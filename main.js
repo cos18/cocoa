@@ -8,6 +8,30 @@ var path = require('path');
 var template = require('./lib/template.js');
 var func = require('./lib/function.js');
 var mysql_con = require('./db/db_con')();
+var cookie = require('cookie');
+
+function authIsOwner(request,response){
+  var isOwner = false;
+  var cookies = {}
+  if(request.headers.cookie){
+    cookies = cookie.parse(request.headers.cookie);
+  }
+  // cookies의 id로 DB 접속해서 pw가 cookies의 status와 일치하면 true반환
+  if(cookies.status){
+    isOwner = true;
+  }
+  // 이 부분 수정하면 되어요
+
+  return isOwner;
+}
+
+function topbar(request, response){
+  var authStatusUI = `<div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>`;
+   if(authIsOwner(request, response)){
+     authStatusUI = `<div id="logout" style="text-align:right;"><a href="/logout_process" style="padding:5px;">logout</a></div>`;
+   }
+return authStatusUI;
+}
 
 var connection = mysql_con.init();
 
@@ -17,7 +41,7 @@ var app = http.createServer(function (request, response) {
   var pathname = url.parse(_url, true).pathname;
 
   if (pathname === '/') { // 메인페이지인 경우
-    if (queryData.id === undefined) { // undefined면 home임.
+    if (!topbar(request, response)) { // undefined면 home임.
       var html = template.HTML(`
         #menuwrap
         {
@@ -29,7 +53,7 @@ var app = http.createServer(function (request, response) {
         `<div id="menuwrap">
           <div id="menu" style="text-align:left;"><a href="/board">board</a></div>
         </div>`,
-        `<h3>This is main page</h3>`);
+        `<h3>This is main page</h3>`, topbar(request, response));
       response.writeHead(200);
       response.end(html);
     } else {
@@ -44,7 +68,7 @@ var app = http.createServer(function (request, response) {
         `<div id="menuwrap">
           <div id="menu" style="text-align:left;"><a href="/board">board</a></div>
         </div>`,
-        `<h3>Login success! Welcome!</h3>`);
+        `<h3>Login success! Welcome!</h3>`,  topbar(request, response));
       response.writeHead(200);
       response.end(html);
     }
@@ -64,7 +88,7 @@ var app = http.createServer(function (request, response) {
             <input type="submit" value=LOGIN>
           </p>
         </form>
-      `);
+      `, topbar(request, response));
 
     response.writeHead(200);
     response.end(html);
@@ -90,35 +114,35 @@ var app = http.createServer(function (request, response) {
         } else {
           result = result[0];
           console.log(result);
-          response.writeHead(200);
+          response.writeHead(302,{
+            'Set-Cookie' : [
+              `status=${result.passwd}`,
+              `nickname=${result.nickname}`,
+              `id=${result.numid}`
+            ],
+            Location : `/`});
           response.end("로그인 성공");
         }
       });
-
-      /*
-      fs.readdir('./member', function (error, filelist) {
-        var id = post.ID;
-        fs.readFile(`member/${id}`, 'utf8', function (err, data) {
-          var state = qs.parse(data);
-          if (state.pw == post.pwd) {
-            response.writeHead(302, {
-              Location: `/?id=${state.group}`
-            }); // 로그인 권한부여를 어떻게 해야할지 생각해야합니다
-            response.end();
-          } else {
-            console.log("Check your ID and Password");
-            response.writeHead(302, {
-              Location: `/login`
-            });
-            response.end();
-          }
-          // id와 비밀번호가 일치한다면 그룹에 맞게 로그인 권한을 부여하고 메인 페이지로
-          // 일치하지 않을경우 에러메시지 출력하면서 다시 로그인 창으로
-        });
-      });
-      */
     });
-  } else if (pathname === '/join') {
+  } else if (pathname === '/logout_process') {
+    var body = '';
+    request.on('data', function (data) {
+      body = body + data;
+    });
+    request.on('end', function () {
+      var post = qs.parse(body);
+      response.writeHead(302, {
+        'Set-Cookie': [
+          `id=; Max-Age=0`,
+          `status=; Max-Age=0`,
+          `nickname=; Max-Age=0`
+        ],
+        Location: `/`
+      });
+      response.end();
+    });
+}  else if (pathname === '/join') {
     var check = func.checkForm(); // 더러운 코드인가..
     var html = template.HTML(`
       #join{
@@ -146,7 +170,7 @@ var app = http.createServer(function (request, response) {
           <input type="submit" value="JOIN">
         </p>
       </form>
-      `);
+      `, topbar(request, response));
     // 현재 아이디는 email 형식으로, 비번은 영문자, 숫자 포함 최소 8지 입력하게 해놓음
     // DB만들어지면 ID중복확인이나 닉네임 중복확인도 해야함
     response.writeHead(200);
@@ -171,9 +195,6 @@ var app = http.createServer(function (request, response) {
       });
     });
 
-
-    //response.writeHead(302, {Location : `/`});
-    //response.end(html);
   } else if (pathname === '/board') {
 
     var stmt = 'select * from Problem';
@@ -204,7 +225,7 @@ var app = http.createServer(function (request, response) {
             <input type="button" onclick="window.location.href='/create';" value="create" />
           </div>
         </div>
-        `);
+        `, topbar(request, response));
       response.writeHead(200);
       response.end(html);
     });
@@ -255,7 +276,7 @@ var app = http.createServer(function (request, response) {
           <p>Hint(shown in page) Number<input type="text" name="hint_num" style="margin-left:10px;" placeholder="number"></input></p>
           <input type="submit" value="create"></input>
         </form>
-      </div>`);
+      </div>`, topbar(request, response));
     response.writeHead(300);
     response.end(html);
   } else if (pathname === '/create_process') {
