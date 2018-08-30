@@ -264,9 +264,6 @@ var app = http.createServer(function(request, response){
             output = output + post.output;
 
             // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
-            if (!fs.existsSync(`./problem`)){
-                fs.mkdirSync(`./problem`);
-              } // problem 폴더 확인
             if (!fs.existsSync(`./problem/${pb_id}`)){
                 fs.mkdirSync(`./problem/${pb_id}`);
               } // 해당 id 폴더 확인
@@ -280,27 +277,7 @@ var app = http.createServer(function(request, response){
             response.end();
           });
         });
-        /*
-        description = description + "title=" + pb_title + "&"+ "info=" + post.pb_info + "&" + "input_test=" + post.input_test + "&" + "output_test=" + post.output_test + "&" + "input=" + post.input + "&" + "output=" + post.output;
-        description = description + "&"+ "limit_time=" + post.lim_time + "&" + "limit_memory=" + post.lim_mem;
-        // 이 아래는 파일로 저장하는 법
-        // 가입시에 이미 있는 아이디는 못가입하게 확인하는 것도 필요
-        fs.writeFile(`problem/${pb_title}`, description, 'utf8', function(err){ // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
-          // 파일 생성이 끝난후에 이동하는 페이지를 다시 설정해주는 리다이렉션 작업을 실행하는 코드가 아래에 있습니다.
-          response.writeHead(302, {Location : `/board`});    // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
-          response.end();
-        });
-        */
     });
   }
-
-
-
-
-
-
-
-
-
 });
 app.listen(80);
