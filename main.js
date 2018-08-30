@@ -10,6 +10,8 @@ var func = require('./lib/function.js');
 var mysql_con = require('./db/db_con')();
 var cookie = require('cookie');
 
+var connection = mysql_con.init();
+
 function authIsOwner(request,response){
   var isOwner = false;
   var cookies = {}
@@ -19,6 +21,9 @@ function authIsOwner(request,response){
   // cookies의 id로 DB 접속해서 pw가 cookies의 status와 일치하면 true반환
   var stmt = `select * from Member where numid='${cookies.id}'`;
   connection.query(stmt, function (err, result) {
+    console.log('access');
+    result=result[0];
+    return true;
     if(cookies.status === result.passwd){
       isOwner = true;
     }
@@ -28,13 +33,13 @@ function authIsOwner(request,response){
 
 function topbar(request, response){
   var authStatusUI = `<div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>`;
+  console.log(authIsOwner(request, response));
    if(authIsOwner(request, response)){
      authStatusUI = `<div id="logout" style="text-align:right;"><a href="/logout_process" style="padding:5px;">logout</a></div>`;
    }
 return authStatusUI;
 }
 
-var connection = mysql_con.init();
 
 var app = http.createServer(function (request, response) {
   var _url = request.url;
@@ -42,7 +47,7 @@ var app = http.createServer(function (request, response) {
   var pathname = url.parse(_url, true).pathname;
 
   if (pathname === '/') { // 메인페이지인 경우
-    if (!topbar(request, response)) { // undefined면 home임.
+    if (!authIsOwner(request, response)) { // undefined면 home임.
       var html = template.HTML(`
         #menuwrap
         {
