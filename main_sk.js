@@ -4,7 +4,7 @@ var url = require('url');
 var qs = require('querystring');
 var pt = require('platform-tools');
 var cp = require('child_process');
-const {c, cpp, node, python, java} = require('compile-run');
+const {c, cpp, node, python} = require('compile-run');
 
 var app = http.createServer(function(request,response){
   var _url = request.url;
