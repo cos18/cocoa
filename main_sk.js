@@ -27,7 +27,7 @@ var app = http.createServer(function(request,response){
         response.writeHead(200);
         response.end('Wait for grading...');
       });
-      c.runFile('C:\Users\User\Desktop\Project\answer_comparing\submit_codes\1004.c', { stdin:'3\n4\n'}, (err, result) => {
+      c.runFile(`answer_comparing/submit_codes/${problemNumber}.c`, { stdin:'3\n4\n'}, (err, result) => {
           if(err){
             console.log(err);
           }
