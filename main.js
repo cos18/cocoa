@@ -16,8 +16,6 @@ var app = http.createServer(function(request, response){
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
 
-  var re = /\"board\/([0-9]+)\"/;    // board 페이지랑 확인중
-
   if(pathname === '/'){  // 메인페이지인 경우
     if(queryData.id===undefined){// undefined면 home임.
       var html = template.HTML(`
@@ -192,19 +190,24 @@ var app = http.createServer(function(request, response){
       response.writeHead(200);
       response.end(html);
     });
-  }
+  } 
   else if(pathname.substr(0,7) === "/board/" && pathname.substring(7,)!==""){
-      var pb_id = pathname.substring(7,);
-      var html = template.HTML('','',`
-
-      <h3>Success!</h3>
-      `);
-      // 이 위의 부분에 표시할 html코드를 만들어야합니다.
-      console.log('success');
-      response.writeHead(200);
-      response.end(html);
-//    }
-}else if(pathname==='/create'){
+    var pb_id = pathname.substring(7,);
+    var stmt = `select * from Problem where pb_id=${pb_id}`;
+    connection.query(stmt, function (err, result) {
+      if(err){
+        alert("Wrong Direction");
+        response.writeHead(302, {Location : `/board`});
+        response.end();
+      } else {
+        result = result[0];
+        var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, 'info', 'inputs', 'outputs');
+        // 이 위의 부분에 표시할 html코드를 만들어야합니다.
+        response.writeHead(200);
+        response.end(html);
+      }
+    });
+  } else if(pathname==='/create'){
       var html = template.HTML(`
         #writeboard{
           border : 3px solid;
