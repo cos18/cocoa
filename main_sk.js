@@ -4,7 +4,9 @@ var url = require('url');
 var qs = require('querystring');
 var pt = require('platform-tools');
 var cp = require('child_process');
-const {c, cpp, node, python} = require('compile-run');
+var shell = require('shelljs');
+var spawn = require('child_process').spawn;
+const {c, cpp, node, python, java} = require('compile-run');
 
 var app = http.createServer(function(request,response){
   var _url = request.url;
@@ -27,7 +29,15 @@ var app = http.createServer(function(request,response){
         response.writeHead(200);
         response.end('Wait for grading...');
       });
-      c.runFile(`answer_comparing/submit_codes/${problemNumber}.c`, { stdin:'3\n4\n'}, (err, result) => {
+
+
+      var run = spawn('./answer_comparing/convertCfiletoExe/a.exe', []);//됨
+      run.stdout.on('data', function (output) {
+          console.log(String(output));
+      });
+
+
+      c.runFile('C:\\Users\\User\\Desktop\\Project\\answer_comparing\\submit_codes\\1000.c', { stdin:'3\n4\n'}, (err, result) => {
           if(err){
             console.log(err);
           }
@@ -35,7 +45,50 @@ var app = http.createServer(function(request,response){
             console.log(result);
           }
       });
+      console.log(c);
 
+      var compile = spawn('gcc',['-o', 'C:\\Users\\User\\Desktop\\Project\\answer_comparing\\convertCfiletoExe\\test.exe','C:\\Users\\User\\Desktop\\Project\\answer_comparing\\submit_codes\\1000.c']);
+      console.log(' ');
+      //console.log(compile);
+
+      //shell.exec('gcc',`submit_codes/${problemNumber}.c`,'-o',`/convertCfiletoExe/${problemNumber}`);
+
+/*
+
+      var compile = spawn('gcc', ['1000.c']);
+      compile.stdout.on('data', function (data) {
+        console.log('stdout: ' + data);
+      });
+      compile.stderr.on('data', function (data) {
+        console.log(String(data));
+      });
+      compile.on('close', function (data) {
+          if (data === 0) {
+              var run = spawn('./a.exe', []);
+              run.stdout.on('data', function (output) {
+                  console.log(String(output));
+              });
+              run.stderr.on('data', function (output) {
+                  console.log(String(output));
+              });
+              run.on('close', function (output) {
+                  console.log('stdout: ' + output);
+              });
+          }
+      });
+*/
+
+      /*
+
+      c.runFile('C:\\Users\\User\\Desktop\\Project\\answer_comparing\\submit_codes\\1000.c', { stdin:'3\n4\n'}, (err, result) => {
+          if(err){
+            console.log(err);
+          }
+          else{
+            console.log(result);
+          }
+      });
+*/
     });
   }
 
