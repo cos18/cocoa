@@ -200,7 +200,7 @@ var app = http.createServer(function(request, response){
         response.writeHead(302, {Location : `/board`});
         response.end();
       } else {
-        result = result[0];
+        result = result[0];]
         var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, 'info', 'inputs', 'outputs');
         // 이 위의 부분에 표시할 html코드를 만들어야합니다.
         response.writeHead(200);
@@ -282,12 +282,7 @@ var app = http.createServer(function(request, response){
             response.end();
           });
         });
-<<<<<<< HEAD
-    });
-=======
       });
-
->>>>>>> bcbae4476dd1dbc9137d428675d0c1406bb32fd1
   }
 });
 app.listen(80);
