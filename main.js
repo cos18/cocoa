@@ -7,7 +7,7 @@ var qs = require('querystring');
 var path = require('path');
 var template = require('./lib/template.js');
 var func = require('./lib/function.js');
-var mysql_con = require('./db/db_con')();
+var mysql_con = require('./db/db_con.js')();
 var cookie = require('cookie');
 
 var connection = mysql_con.init();
@@ -31,7 +31,7 @@ function authIsOwner(request,response){
 
 function topbar(request, response){
   var authStatusUI = `<div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>`;
-  console.log(authIsOwner(request, response));
+  //console.log(authIsOwner(request, response));
    if(authIsOwner(request, response)){
      authStatusUI = `<div id="logout" style="text-align:right;"><a href="/logout_process" style="padding:5px;">logout</a></div>`;
    }
@@ -258,7 +258,7 @@ var app = http.createServer(function (request, response) {
         fs.readFile(`problem/${pb_id}/info.txt`, 'utf8', function (err, info) {
           fs.readFile(`problem/${pb_id}/input/1.txt`, 'utf8', function (err, input) {
             fs.readFile(`problem/${pb_id}/output/1.txt`, 'utf8', function (err, output) {
-              var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output);
+              var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output, topbar(request,response));
               // 이 위의 부분에 표시할 html코드를 만들어야합니다.
               response.writeHead(200);
               response.end(html);
@@ -291,7 +291,7 @@ var app = http.createServer(function (request, response) {
           <input type="submit" value="create"></input>
         </form>
       </div>`, topbar(request, response));
-    response.writeHead(300);
+    response.writeHead(200);
     response.end(html);
   } else if (pathname === '/create_process') {
     /*
@@ -332,4 +332,5 @@ var app = http.createServer(function (request, response) {
     });
   }
 });
+
 app.listen(80);
