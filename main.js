@@ -13,7 +13,7 @@ var cookie = require('cookie');
 var connection = mysql_con.init();
 
 function authIsOwner(request,response){
-  var isOwner = false;
+  isOwner = false;
   var cookies = {}
   if(request.headers.cookie){
     cookies = cookie.parse(request.headers.cookie);
@@ -23,7 +23,6 @@ function authIsOwner(request,response){
   connection.query(stmt, function (err, result) {
     console.log('access');
     result=result[0];
-    return true;
     if(cookies.status === result.passwd){
       isOwner = true;
     }
