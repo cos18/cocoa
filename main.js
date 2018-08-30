@@ -78,6 +78,24 @@ var app = http.createServer(function (request, response) {
     });
     request.on('end', function () { // 들어올 정보가 없다면 end 다음에 있는 callback이 실행되도록 함.
       var post = qs.parse(body);
+
+      var stmt = `select * from Member where email='${post.ID}' AND passwd=HEX(AES_ENCRYPT('${post.pwd}', MD5('comeducocoa')))`;
+      connection.query(stmt, function (err, result) {
+        if (err) {
+          console.log("error!"+err);
+          response.writeHead(302, {
+            Location: `/login`
+          });
+          response.end();
+        } else {
+          result = result[0];
+          console.log(result);
+          response.writeHead(200);
+          response.end("로그인 성공");
+        }
+      });
+
+      /*
       fs.readdir('./member', function (error, filelist) {
         var id = post.ID;
         fs.readFile(`member/${id}`, 'utf8', function (err, data) {
@@ -98,6 +116,7 @@ var app = http.createServer(function (request, response) {
           // 일치하지 않을경우 에러메시지 출력하면서 다시 로그인 창으로
         });
       });
+      */
     });
   } else if (pathname === '/join') {
     var check = func.checkForm(); // 더러운 코드인가..
@@ -119,9 +138,9 @@ var app = http.createServer(function (request, response) {
         <p>Work at <input type="text" name="belong" placeholder="Belong"></p>
         <p>Group</p>
           <fieldset>
-            <span><input type="radio" name="group" value="student" checked/>Student</span>
-            <span><input type="radio" name="group" value="professor" />Professor</span>
-            <span><input type="radio" name="group" value="other" />Other</span>
+            <span><input type="radio" name="group" value="2" checked/>Student</span>
+            <span><input type="radio" name="group" value="1" />Professor</span>
+            <span><input type="radio" name="group" value="3" />Other</span>
           </fieldset>
         <p>
           <input type="submit" value="JOIN">
@@ -143,12 +162,8 @@ var app = http.createServer(function (request, response) {
     request.on('end', function () { // 들어올 정보가 없다면 end 다음에 있는 callback이 실행되도록 함.
       var post = qs.parse(body); // parse를 통해 객체화 시켜서, post에 우리가 submit으로 제출한 POST의 내용이 담겨있을거다.
       var description = "";
-      var id = post.ID;
-      description = description + "id=" + id + "&" + "pw=" + post.pwd + "&" + "name=" + post.username + "&" + "nickname=" + post.nickname + "&" + "belong=" + post.belong + "&" + "group=" + post.group;
-      // 이 아래는 파일로 저장하는 법
-      // 가입시에 이미 있는 아이디는 못가입하게 확인하는 것도 필요
-      fs.writeFile(`member/${id}`, description, 'utf8', function (err) { // 파일 저장이 잘 되면 지금 이 callback함수가 실행되겠죠?
-        // 파일 생성이 끝난후에 이동하는 페이지를 다시 설정해주는 리다이렉션 작업을 실행하는 코드가 아래에 있습니다.
+      var que = `INSERT INTO Member (email, passwd, krname, belong, nickname, member_type) VALUES("${post.ID}", HEX(AES_ENCRYPT('${post.pwd}', MD5('comeducocoa'))), "${post.username}", "${post.belong}", "${post.nickname}", ${post.group});`;
+      connection.query(que, function (err, result) {
         response.writeHead(302, {
           Location: `/`
         }); // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
@@ -165,7 +180,6 @@ var app = http.createServer(function (request, response) {
     connection.query(stmt, function (err, result) {
       //console.log(result);
       var list = template.problem_list(result);
-      console.log("success");
       var html = template.HTML(`
         #menuwrap{
           //width : auto;
