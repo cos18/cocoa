@@ -200,11 +200,25 @@ var app = http.createServer(function(request, response){
         response.writeHead(302, {Location : `/board`});
         response.end();
       } else {
+<<<<<<< HEAD
         result = result[0];]
         var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, 'info', 'inputs', 'outputs');
         // 이 위의 부분에 표시할 html코드를 만들어야합니다.
         response.writeHead(200);
         response.end(html);
+=======
+        fs.readFile(`problem/${pb_id}/info.txt`, 'utf8', function(err, info){
+          fs.readFile(`problem/${pb_id}/input/1.txt`, 'utf8', function(err, input){
+            fs.readFile(`problem/${pb_id}/output/1.txt`, 'utf8', function(err, output){
+              result = result[0];
+              var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output);
+              // 이 위의 부분에 표시할 html코드를 만들어야합니다.
+              response.writeHead(200);
+              response.end(html);
+            });
+          });
+        });
+>>>>>>> 6e1e795c95be2f9ca0afadf74e759d490fa2da94
       }
     });
   } else if(pathname==='/create'){
@@ -283,6 +297,11 @@ var app = http.createServer(function(request, response){
           });
         });
       });
+<<<<<<< HEAD
   }
+=======
+    }
+
+>>>>>>> 6e1e795c95be2f9ca0afadf74e759d490fa2da94
 });
 app.listen(80);
