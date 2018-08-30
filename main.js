@@ -196,16 +196,20 @@ var app = http.createServer(function(request, response){
         response.end();
     } else{
       // 현재 이부분에 board/{문제번호} 주소인 경우 그 문제에 해당하는 정보를 출력하는 페이지를 만들면 될 것 같습니다
-      var html = template.HTML('','',`
-
-      <h3>Success!</h3>
-
-      `);
-      // 이 위의 부분에 표시할 html코드를 만들어야합니다.
-      console.log('success');
-
-      response.writeHead(200);
-      response.end(html);
+      var stmt = `select * from Problem where pb_id=${queryData.id}`;
+      connection.query(stmt, function (err, result) {
+        if(err){
+          alert("Wrong Direction");
+          response.writeHead(302, {Location : `/board`});
+          response.end();
+        } else {
+          result = result[0];
+          var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, 'info', 'inputs', 'outputs');
+          // 이 위의 부분에 표시할 html코드를 만들어야합니다.
+          response.writeHead(200);
+          response.end(html);
+        }
+      });
     }
 }else if(pathname==='/create'){
       var html = template.HTML(`
