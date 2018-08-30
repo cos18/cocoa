@@ -18,6 +18,7 @@ function authIsOwner(request,response){
   }
   // cookies의 id로 DB 접속해서 pw가 cookies의 status와 일치하면 true반환
   if(cookies.status){
+    
     isOwner = true;
   }
   // 이 부분 수정하면 되어요
@@ -142,7 +143,7 @@ var app = http.createServer(function (request, response) {
       });
       response.end();
     });
-}  else if (pathname === '/join') {
+  } else if (pathname === '/join') {
     var check = func.checkForm(); // 더러운 코드인가..
     var html = template.HTML(`
       #join{
