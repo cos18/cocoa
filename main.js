@@ -17,13 +17,13 @@ function authIsOwner(request,response){
     cookies = cookie.parse(request.headers.cookie);
   }
   // cookies의 id로 DB 접속해서 pw가 cookies의 status와 일치하면 true반환
-  if(cookies.status){
-    
-    isOwner = true;
-  }
-  // 이 부분 수정하면 되어요
-
-  return isOwner;
+  var stmt = `select * from Member where numid='${cookies.id}'`;
+  connection.query(stmt, function (err, result) {
+    if(cookies.status === result.passwd){
+      isOwner = true;
+    }
+    return isOwner;
+  });
 }
 
 function topbar(request, response){
@@ -79,18 +79,22 @@ var app = http.createServer(function (request, response) {
     // 관리자일 경우, 교수/지도자 일 경우, 학생일 경우
 
   } else if (pathname === '/login') {
+    var body = "";
+    if (queryData.error === 'true'){
+      body = body + '<h4>Login Error! Check Id or password</h4>';
+    }
+    body = body + `
+      <h3>Login Session</h3>
+      <form action="/login_process" method="post">
+        <p>ID <input type="text" name="ID" placeholder="ID"></p>
+        <p>PW <input type="password" name="pwd" maxlength=14 placeholder="password"></p>
+        <p>
+          <input type="submit" value=LOGIN>
+        </p>
+      </form>
+    `;
     var html = template.HTML('',
-      '', `
-        <h3>Login Session</h3>
-        <form action="/login_process" method="post">
-          <p>ID <input type="text" name="ID" placeholder="ID"></p>
-          <p>PW <input type="password" name="pwd" maxlength=14 placeholder="password"></p>
-          <p>
-            <input type="submit" value=LOGIN>
-          </p>
-        </form>
-      `, topbar(request, response));
-
+      '', body, topbar(request, response));
     response.writeHead(200);
     response.end(html);
   } else if (pathname === '/login_process') {
@@ -106,14 +110,20 @@ var app = http.createServer(function (request, response) {
 
       var stmt = `select * from Member where email='${post.ID}' AND passwd=HEX(AES_ENCRYPT('${post.pwd}', MD5('comeducocoa')))`;
       connection.query(stmt, function (err, result) {
+        result = result[0];
         if (err) {
           console.log("error!"+err);
           response.writeHead(302, {
             Location: `/login`
           });
           response.end();
+        } else if (typeof(result) === "undefined"){
+          console.log("error!");
+          response.writeHead(302, {
+            Location: `/login?error=true`
+          });
+          response.end();
         } else {
-          result = result[0];
           console.log(result);
           response.writeHead(302,{
             'Set-Cookie' : [
