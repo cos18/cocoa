@@ -373,53 +373,66 @@ var app = http.createServer(function (request, response) {
       var post = qs.parse(body);
       var problemNumber = post.problemNumber;
       var submitCode = post.submitCode;
-      fs.writeFile(`answer_comparing/submit_codes/${problemNumber}.c`, submitCode, 'utf8', function (err) {
-        response.writeHead(200);
-        response.end('Wait for grading...');
-      });
 
-      var compile = spawn('gcc', ['-o', `./answer_comparing/convertToExe/${problemNumber}.exe`, `./answer_comparing/submit_codes/${problemNumber}.c`], {
-        shell: true
-      });
+      var cookies = {}
+      if (request.headers.cookie) {
+        cookies = cookie.parse(request.headers.cookie);
+      }
 
-      compile.stdout.on('data', function (data) {
-        console.log('stdout: ' + data);
-
-      });
-
-      compile.stderr.on('data', function (data) {
-        console.log(String(data));
-      });
-
-      compile.on('exit', function (data) {
-        if (data === 0) {
-          var run = spawn(`./answer_comparing/convertToExe/${problemNumber}.exe`, ['<', `./problem/${problemNumber}/input/1.txt`, '>', './tmp.txt'], {
-            shell: true
-          });
-
-          run.on('exit', function (output) {
-            console.log('stdout: ' + output + "!");
-            fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
-              console.log("ans:" + ans);
-              fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
-                console.log("result:" + result);
-                if (ans === result) {
-                  console.log('CORRECT!');
-                  response.writeHead(200);
-                  response.end("CORRECT!");
-                } else {
-                  console.log('NO? SINGO');
-                }
-              });
-
+      var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${cookies.id}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
+      connection.query(que, function (err, result) {
+        var que = `select * FROM Solve where solve_member=${cookies.id} ORDER BY solve_id DESC LIMIT 1;`
+        connection.query(que, function (err, result) {
+          solve_id = result[0].solve_id;
+          fs.writeFile(`answer_comparing/submit_codes/${solve_id}.c`, submitCode, 'utf8', function (err) {
+            var compile = spawn('gcc', ['-o', `./answer_comparing/convertToExe/${solve_id}.exe`, `./answer_comparing/submit_codes/${solve_id}.c`], {
+              shell: true
             });
+      
+            compile.stdout.on('data', function (data) {
+              console.log('stdout: ' + data);
+            });
+      
+            compile.stderr.on('data', function (data) {
+
+              console.log(String(data));
+            });
+      
+            compile.on('exit', function (data) {
+              if (data === 0) {
+                var run = spawn(`./answer_comparing/convertToExe/${solve_id}.exe`, ['<', `./problem/${problemNumber}/input/1.txt`, '>', './tmp.txt'], {
+                  shell: true
+                });
+      
+                run.on('exit', function (output) {
+                  console.log('stdout: ' + output + "!");
+                  fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
+                    console.log("ans:" + ans);
+                    fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
+                      console.log("result" + result);
+                      if (ans === result) {
+                        console.log('CORRECT!');
+                        response.writeHead(200);
+                        response.end('CORRECT!');
+                      } else {
+                        console.log('NO? SINGO');
+                        response.writeHead(200);
+                        response.end('NO');
+                      }
+                      
+                    });
+      
+                  });
+                });
+              }
+            });
+            //response.writeHead(200);
+            //response.end('Wait for grading...');
+
           });
-        }
+        });
       });
-
-
     });
-
   }
 });
 
