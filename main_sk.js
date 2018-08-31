@@ -30,31 +30,62 @@ var app = http.createServer(function(request,response){
         response.end('Wait for grading...');
       });
 
-
+/*
       var run = spawn('./answer_comparing/convertCfiletoExe/a.exe', []);//됨
       run.stdout.on('data', function (output) {
           console.log(String(output));
       });
+*/
 
+	var compile = spawn('gcc',['-o',`./answer_comparing/convertToExe/${problemNumber}.exe`,`./answer_comparing/submit_codes/${problemNumber}.c`],{shell:true});
+	
+	compile.stdout.on('data',function(data){
+		console.log('stdout: '+data);
+	});
 
-      c.runFile('C:\\Users\\User\\Desktop\\Project\\answer_comparing\\submit_codes\\1000.c', { stdin:'3\n4\n'}, (err, result) => {
-          if(err){
-            console.log(err);
+	compile.stderr.on('data', function (data) {
+        	console.log(String(data));
+	});
+
+	compile.on('exit', function (data) {
+          if (data === 0) {
+              var run = spawn(`./answer_comparing/convertToExe/${problemNumber}.exe`,['<',`./problem/${problemNumber}/input/1.txt`,'>','./tmp.txt'],{shell:true});
+
+              run.stdout.on('data', function (output) {
+                  console.log(String(output));
+              });
+              run.stderr.on('data', function (output) {
+                  console.log(String(output));
+              });
+              run.on('exit', function (output) {
+                  console.log('stdout: ' + output);
+              });
+		fs.readFile(`problem/${problemNumber}/output/1.txt`,'utf8',function(err,description){
+                	console.log(description);
+			fs.readFile(`./tmp.txt`,'utf8',function(err,description){
+		                console.log(description);
+       			 });
+
+		});
+
           }
-          else{
-            console.log(result);
-          }
-      });
-      console.log(c);
-
-      var compile = spawn('gcc',['-o', 'C:\\Users\\User\\Desktop\\Project\\answer_comparing\\convertCfiletoExe\\test.exe','C:\\Users\\User\\Desktop\\Project\\answer_comparing\\submit_codes\\1000.c']);
-      console.log(' ');
-      //console.log(compile);
-
-      //shell.exec('gcc',`submit_codes/${problemNumber}.c`,'-o',`/convertCfiletoExe/${problemNumber}`);
+      	});
+/*
+	fs.readFile(`problem/${problemNumber}/output/1.txt`,'utf8',function(err,description){
+		console.log(description);
+	});
+*/
+/*
+	fs.readFile(`./tmp.txt`,'utf8',function(err,description){
+                console.log(description);
+        });
+*/	
+//	console.log(compile);
+	
+//	var compile2 = spawn(`./answer_comparing/convertToExe/${problemNumber}.exe`,['<',`./problem/${problemNumber}/input/1.txt`,'>','./tmp.txt']);	
+//	console.log(compile2);
 
 /*
-
       var compile = spawn('gcc', ['1000.c']);
       compile.stdout.on('data', function (data) {
         console.log('stdout: ' + data);
@@ -78,17 +109,7 @@ var app = http.createServer(function(request,response){
       });
 */
 
-      /*
 
-      c.runFile('C:\\Users\\User\\Desktop\\Project\\answer_comparing\\submit_codes\\1000.c', { stdin:'3\n4\n'}, (err, result) => {
-          if(err){
-            console.log(err);
-          }
-          else{
-            console.log(result);
-          }
-      });
-*/
     });
   }
 
