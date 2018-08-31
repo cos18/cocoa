@@ -59,19 +59,26 @@ var app = http.createServer(function (request, response) {
                     var run = spawn(`./answer_comparing/convertToExe/${problemNumber}.exe`, ['<', `./problem/${problemNumber}/input/1.txt`, '>', './tmp.txt'], {
                         shell: true
                     });
-
+/*
                     run.stdout.on('data', function (output) {
                         console.log(String(output));
                     });
                     run.stderr.on('data', function (output) {
                         console.log(String(output));
                     });
+*/
                     run.on('exit', function (output) {
                         console.log('stdout: ' + output+"!");
                         fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
                           console.log(ans);
                           fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
                               console.log(result);
+                              if(ans===result){
+                                console.log('CORRECT!');
+                              }
+                              else{
+                                console.log('NO? SINGO');
+                              }
                           });
   
                       });
