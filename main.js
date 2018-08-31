@@ -420,8 +420,7 @@ var app = http.createServer(function (request, response) {
                           response.end('NO? SINGO');
                         });
                       }
-                      response.writeHead(200);
-                      response.end('Wait for grading...');
+                      
                     });
       
                   });
