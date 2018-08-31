@@ -101,6 +101,8 @@ var app = http.createServer(function (request, response) {
     var body = "";
     if (queryData.error === 'true') {
       body = body + '<h4>Login Error! Check Id or password</h4>';
+    } else if (queryData.error === 'nologin') {
+      body = body + '<h4>You must login before submit</h4>';
     }
     body = body + `
       <h3>Login Session</h3>
@@ -363,83 +365,90 @@ var app = http.createServer(function (request, response) {
       }
     });
   } else if (pathname === '/submit_code') {
-    var body = '';
-    request.on('data', function (data) {
-      body = body + data;
-    });
-    request.on('end', function (data) {
-      var post = qs.parse(body);
-      var problemNumber = post.problemNumber;
-      var submitCode = post.submitCode;
+    if (authIsOwner(request, response)){
+      var body = '';
+      request.on('data', function (data) {
+        body = body + data;
+      });
+      request.on('end', function (data) {
+        var post = qs.parse(body);
+        var problemNumber = post.problemNumber;
+        var submitCode = post.submitCode;
 
-      var cookies = {}
-      if (request.headers.cookie) {
-        cookies = cookie.parse(request.headers.cookie);
-      }
+        var cookies = {}
+        if (request.headers.cookie) {
+          cookies = cookie.parse(request.headers.cookie);
+        }
 
-      var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${cookies.id}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
-      connection.query(que, function (err, result) {
-        que = `select * FROM Solve where solve_member=${cookies.id} ORDER BY solve_id DESC LIMIT 1;`
+        var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${cookies.id}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
         connection.query(que, function (err, result) {
-          solve_id = result[0].solve_id;
-          fs.writeFile(`answer_comparing/submit_codes/${solve_id}.c`, submitCode, 'utf8', function (err) {
-            var compile = spawn('gcc', ['-o', `./answer_comparing/convertToExe/${solve_id}.exe`, `./answer_comparing/submit_codes/${solve_id}.c`], {
-              shell: true
-            });
-      
-            compile.stdout.on('data', function (data) {
-              console.log('stdout: ' + data);
-            });
-      
-            compile.stderr.on('data', function (data) {
-              console.log(String(data));
-            });
-      
-            compile.on('exit', function (data) {
-              if (data === 0) {
-                var run = spawn(`./answer_comparing/convertToExe/${solve_id}.exe`, ['<', `./problem/${problemNumber}/input/1.txt`, '>', './tmp.txt'], {
-                  shell: true
-                });
-      
-                run.on('exit', function (output) {
-                  console.log('stdout: ' + output + "!");
-                  fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
-                    console.log("ans:" + ans);
-                    fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
-                      console.log("result" + result);
-                      if (ans === result) {
-                        que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
-                        connection.query(que, function (err, result){
-                          response.writeHead(200);
-                          response.end('Correct!');
-                        });
-                      } else {
-                        que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
-                        connection.query(que, function (err, result){
-                          response.writeHead(200);
-                          response.end('NO? SINGO');
-                        });
-                      }
-                      
-                    });
-      
+          que = `select * FROM Solve where solve_member=${cookies.id} ORDER BY solve_id DESC LIMIT 1;`
+          connection.query(que, function (err, result) {
+            solve_id = result[0].solve_id;
+            fs.writeFile(`answer_comparing/submit_codes/${solve_id}.c`, submitCode, 'utf8', function (err) {
+              var compile = spawn('gcc', ['-o', `./answer_comparing/convertToExe/${solve_id}.exe`, `./answer_comparing/submit_codes/${solve_id}.c`], {
+                shell: true
+              });
+        
+              compile.stdout.on('data', function (data) {
+                console.log('stdout: ' + data);
+              });
+        
+              compile.stderr.on('data', function (data) {
+                console.log(String(data));
+              });
+        
+              compile.on('exit', function (data) {
+                if (data === 0) {
+                  var run = spawn(`./answer_comparing/convertToExe/${solve_id}.exe`, ['<', `./problem/${problemNumber}/input/1.txt`, '>', './tmp.txt'], {
+                    shell: true
                   });
-                });
-              } else { // 컴파일에러
-                que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
-                connection.query(que, function (err, result){
-                  response.writeHead(200);
-                  response.end('Compile ERROR!!');
-                });
-              }
-            });
-            //response.writeHead(200);
-            //response.end('Wait for grading...');
+        
+                  run.on('exit', function (output) {
+                    console.log('stdout: ' + output + "!");
+                    fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
+                      console.log("ans:" + ans);
+                      fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
+                        console.log("result" + result);
+                        if (ans === result) {
+                          que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
+                          connection.query(que, function (err, result){
+                            response.writeHead(200);
+                            response.end('Correct!');
+                          });
+                        } else {
+                          que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
+                          connection.query(que, function (err, result){
+                            response.writeHead(200);
+                            response.end('NO? SINGO');
+                          });
+                        }
+                        
+                      });
+                    });
+                  });
+                } else { // 컴파일에러
+                  que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
+                  connection.query(que, function (err, result){
+                    response.writeHead(200);
+                    response.end('Compile ERROR!!');
+                  });
+                }
+              });
+              //response.writeHead(200);
+              //response.end('Wait for grading...');
 
+            });
           });
         });
       });
-    });
+    } else {
+      console.log("error!");
+      response.writeHead(302, {
+        Location: `/login?error=nologin`
+      });
+      response.end();
+    }
   }
 });
 
