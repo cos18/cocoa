@@ -16,29 +16,29 @@ var pt = require('platform-tools');
 var connection = mysql_con.init();
 var dbcon_sync = mysql_con.init_sync();
 
-function authIsOwner(request,response){
+function authIsOwner(request, response) {
   isOwner = false;
   var cookies = {}
-  if(request.headers.cookie){
+  if (request.headers.cookie) {
     cookies = cookie.parse(request.headers.cookie);
   }
   // cookies의 id로 DB 접속해서 pw가 cookies의 status와 일치하면 true반환
   dbcon_sync.query("USE cocoa_web");
   var stmt = `select * from Member where numid='${cookies.id}'`;
   var result = dbcon_sync.query(stmt)[0];
-  if(typeof(result) !== "undefined" && cookies.status === result.passwd){
+  if (typeof (result) !== "undefined" && cookies.status === result.passwd) {
     isOwner = true;
   }
   return isOwner;
 }
 
-function topbar(request, response){
+function topbar(request, response) {
   var authStatusUI = `<div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>`;
   //console.log(authIsOwner(request, response));
-   if(authIsOwner(request, response)){
-     authStatusUI = `<div id="logout" style="text-align:right;"><a href="/logout_process" style="padding:5px;">logout</a></div>`;
-   }
-return authStatusUI;
+  if (authIsOwner(request, response)) {
+    authStatusUI = `<div id="logout" style="text-align:right;"><a href="/logout_process" style="padding:5px;">logout</a></div>`;
+  }
+  return authStatusUI;
 }
 
 
@@ -46,18 +46,22 @@ var app = http.createServer(function (request, response) {
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
-  if (request.url.indexOf(".css") !== -1){
-    fs.readFile(`${request.url.substring(1, )}`, 'utf8', function(err, file){
-      response.writeHead(200, {'Content-Type' : 'text/css'});
+  if (request.url.indexOf(".css") !== -1) {
+    fs.readFile(`${request.url.substring(1, )}`, 'utf8', function (err, file) {
+      response.writeHead(200, {
+        'Content-Type': 'text/css'
+      });
       response.write(file);
       response.end();
-    }); 
-  } else if (request.url.indexOf(".js") !== -1){
-    fs.readFile(`${request.url.substring(1, )}`, 'utf8', function(err, file){
-      response.writeHead(200, {'Content-Type' : 'text/javascript'});
+    });
+  } else if (request.url.indexOf(".js") !== -1) {
+    fs.readFile(`${request.url.substring(1, )}`, 'utf8', function (err, file) {
+      response.writeHead(200, {
+        'Content-Type': 'text/javascript'
+      });
       response.write(file);
       response.end();
-    }); 
+    });
   } else if (pathname === '/') { // 메인페이지인 경우
     if (!authIsOwner(request, response)) { // undefined면 home임.
       var html = template.HTML(`
@@ -86,7 +90,7 @@ var app = http.createServer(function (request, response) {
         `<div id="menuwrap">
           <div id="menu" style="text-align:left;"><a href="/board">board</a></div>
         </div>`,
-        `<h3>Login success! Welcome!</h3>`,  topbar(request, response));
+        `<h3>Login success! Welcome!</h3>`, topbar(request, response));
       response.writeHead(200);
       response.end(html);
     }
@@ -97,7 +101,7 @@ var app = http.createServer(function (request, response) {
 
   } else if (pathname === '/login') {
     var body = "";
-    if (queryData.error === 'true'){
+    if (queryData.error === 'true') {
       body = body + '<h4>Login Error! Check Id or password</h4>';
     }
     body = body + `
@@ -129,12 +133,12 @@ var app = http.createServer(function (request, response) {
       connection.query(stmt, function (err, result) {
         result = result[0];
         if (err) {
-          console.log("error!"+err);
+          console.log("error!" + err);
           response.writeHead(302, {
             Location: `/login`
           });
           response.end();
-        } else if (typeof(result) === "undefined"){
+        } else if (typeof (result) === "undefined") {
           console.log("error!");
           response.writeHead(302, {
             Location: `/login?error=true`
@@ -142,13 +146,14 @@ var app = http.createServer(function (request, response) {
           response.end();
         } else {
           console.log(result);
-          response.writeHead(302,{
-            'Set-Cookie' : [
+          response.writeHead(302, {
+            'Set-Cookie': [
               `status=${result.passwd}`,
               `nickname=${result.nickname}`,
               `id=${result.numid}`
             ],
-            Location : `/`});
+            Location: `/`
+          });
           response.end("로그인 성공");
         }
       });
@@ -241,12 +246,12 @@ var app = http.createServer(function (request, response) {
           //grid-template : auto / 140px auto;
           //grid-gap : 3px;
         }`,
-            `<div id="menuwrap">
+        `<div id="menuwrap">
             <div id="menu" style="text-align:left; font-weight:bold;">
               <a href="/board">board</a>
             </div>
         </div>`,
-            `
+        `
         <div id="mainwrap">
           <div>
             ${list}
@@ -286,7 +291,7 @@ var app = http.createServer(function (request, response) {
         border : 3px solid;
         margin-bottom : 200px;
         min-width : 600px;
-      }`, '',`
+      }`, '', `
       <div id="writeboard">
         <h3 style="padding-left : 10px;">Create Problem</h3>
         <form method="post" action="/create_process" style="padding:10px;">
@@ -345,12 +350,12 @@ var app = http.createServer(function (request, response) {
     });
   } else if (pathname === '/submit') {
     var body = '';
-    request.on('data', function (data) { 
-      body = body + data; 
+    request.on('data', function (data) {
+      body = body + data;
     });
-    request.on('end', function () { 
+    request.on('end', function () {
       var post = qs.parse(body);
-      if(typeof(post.id) !== undefined){
+      if (typeof (post.id) !== undefined) {
         var html = template.submit_page(post.id);
         response.writeHead(200);
         response.end(html);
@@ -359,60 +364,59 @@ var app = http.createServer(function (request, response) {
         response.end("잘못된 접근입니다.");
       }
     });
-  } else if(pathname === '/submit_code') {
+  } else if (pathname === '/submit_code') {
     var body = '';
-        request.on('data', function (data) {
-            body = body + data;
-        });
-        request.on('end', function (data) {
-            var post = qs.parse(body);
-            var problemNumber = post.problemNumber;
-            var submitCode = post.submitCode;
-            fs.writeFile(`answer_comparing/submit_codes/${problemNumber}.c`, submitCode, 'utf8', function (err) {
-                response.writeHead(200);
-                response.end('Wait for grading...');
-            });
+    request.on('data', function (data) {
+      body = body + data;
+    });
+    request.on('end', function (data) {
+      var post = qs.parse(body);
+      var problemNumber = post.problemNumber;
+      var submitCode = post.submitCode;
+      fs.writeFile(`answer_comparing/submit_codes/${problemNumber}.c`, submitCode, 'utf8', function (err) {
+        response.writeHead(200);
+        response.end('Wait for grading...');
+      });
 
-            var compile = spawn('gcc', ['-o', `./answer_comparing/convertToExe/${problemNumber}.exe`, `./answer_comparing/submit_codes/${problemNumber}.c`], {
-                shell: true
-            });
+      var compile = spawn('gcc', ['-o', `./answer_comparing/convertToExe/${problemNumber}.exe`, `./answer_comparing/submit_codes/${problemNumber}.c`], {
+        shell: true
+      });
 
-            compile.stdout.on('data', function (data) {
-                console.log('stdout: ' + data);
-                
-            });
+      compile.stdout.on('data', function (data) {
+        console.log('stdout: ' + data);
 
-            compile.stderr.on('data', function (data) {
-                console.log(String(data));
-            });
+      });
 
-            compile.on('exit', function (data) {
-                if (data === 0) {
-                    var run = spawn(`./answer_comparing/convertToExe/${problemNumber}.exe`, ['<', `./problem/${problemNumber}/input/1.txt`, '>', './tmp.txt'], {
-                        shell: true
-                    });
+      compile.stderr.on('data', function (data) {
+        console.log(String(data));
+      });
 
-                    run.on('exit', function (output) {
-                        console.log('stdout: ' + output+"!");
-                        fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
-                          console.log("ans:"+ans);
-                          fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
-                              console.log("result"+result);
-                              if(ans===result){
-                                console.log('CORRECT!');
-                              }
-                              else{
-                                console.log('NO? SINGO');
-                              }
-                          });
-  
-                      });
-                    });
+      compile.on('exit', function (data) {
+        if (data === 0) {
+          var run = spawn(`./answer_comparing/convertToExe/${problemNumber}.exe`, ['<', `./problem/${problemNumber}/input/1.txt`, '>', './tmp.txt'], {
+            shell: true
+          });
+
+          run.on('exit', function (output) {
+            console.log('stdout: ' + output + "!");
+            fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
+              console.log("ans:" + ans);
+              fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
+                console.log("result" + result);
+                if (ans === result) {
+                  console.log('CORRECT!');
+                } else {
+                  console.log('NO? SINGO');
                 }
-            });
-  
+              });
 
-        });
+            });
+          });
+        }
+      });
+
+
+    });
 
   }
 });
