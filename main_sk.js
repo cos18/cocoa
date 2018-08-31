@@ -46,7 +46,7 @@ var app = http.createServer(function (request, response) {
             });
 
             compile.stdout.on('data', function (data) {
-                console.log('stdout: ' + data+"!!!!!");
+                console.log('stdout: ' + data);
                 
             });
 
@@ -61,7 +61,6 @@ var app = http.createServer(function (request, response) {
                     });
 
                     run.stdout.on('data', function (output) {
-                      
                         console.log(String(output));
                     });
                     run.stderr.on('data', function (output) {
@@ -69,7 +68,13 @@ var app = http.createServer(function (request, response) {
                     });
                     run.on('exit', function (output) {
                         console.log('stdout: ' + output+"!");
-                        
+                        fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
+                          console.log(ans);
+                          fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
+                              console.log(result);
+                          });
+  
+                      });
                     });
                     
 
