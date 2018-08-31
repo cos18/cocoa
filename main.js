@@ -442,40 +442,6 @@ var app = http.createServer(function (request, response) {
           });
         });
       });
-    } else if(pathname === '/result'){
-      var stmt = 'select * from Problem';
-        connection.query(stmt, function (err, result) {
-          //console.log(result);
-          var list = template.result_list(result);
-          var html = template.HTML(`
-            #menuwrap{
-              //width : auto;
-              border-top : 3px solid black;
-              border-bottom : 3px solid black;
-              padding : 5px;
-            }
-            #boardwrap{
-              //display : grid;
-              //grid-template : auto / 140px auto;
-              //grid-gap : 3px;
-            }`,
-            `<div id="menuwrap">
-                <div id="menu" style="text-align:left; font-weight:bold;">
-                  <a href="/board">board</a> <a href="/result">result</a>
-                </div>
-            </div>`,
-            `
-            <div id="mainwrap">
-              <div>
-                ${list}
-                <input type="button" onclick="window.location.href='/create';" value="create" />
-              </div>
-            </div>
-            `, topbar(request, response));
-          response.writeHead(200);
-          response.end(html);
-        });
-      
     } else {
       console.log("error!");
       response.writeHead(302, {
@@ -483,7 +449,38 @@ var app = http.createServer(function (request, response) {
       });
       response.end();
     }
-  }
+  } else if(pathname === '/result'){
+    var stmt = 'select * from Solve ORDER BY solve_id DESC';
+    connection.query(stmt, function (err, result) {
+      var list = template.result_list(result);
+      var html = template.HTML(`
+        #menuwrap{
+          //width : auto;
+          border-top : 3px solid black;
+          border-bottom : 3px solid black;
+          padding : 5px;
+        }
+        #boardwrap{
+          //display : grid;
+          //grid-template : auto / 140px auto;
+          //grid-gap : 3px;
+        }`,
+        `<div id="menuwrap">
+            <div id="menu" style="text-align:left; font-weight:bold;">
+              <a href="/board">board</a> <a href="/result">result</a>
+            </div>
+        </div>`,
+        `
+        <div id="mainwrap">
+          <div>
+            ${list}
+          </div>
+        </div>
+        `, topbar(request, response));
+      response.writeHead(200);
+      response.end(html);
+    });
+  } 
 });
 
 app.listen(80);
