@@ -14,6 +14,8 @@ const {
     java
 } = require('compile-run');
 
+//happy
+
 var app = http.createServer(function (request, response) {
     var _url = request.url;
     if (_url === '/') {
