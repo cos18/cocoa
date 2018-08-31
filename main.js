@@ -380,7 +380,7 @@ var app = http.createServer(function (request, response) {
       var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${cookies.id}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
       connection.query(que, function (err, result) {
         que = `select * FROM Solve where solve_member=${cookies.id} ORDER BY solve_id DESC LIMIT 1;`
-        connection.query(que, function (err, result) {
+        connection.query(que, function (err, result) { 
           solve_id = result[0].solve_id;
           fs.writeFile(`answer_comparing/submit_codes/${solve_id}.c`, submitCode, 'utf8', function (err) {
             var compile = spawn('gcc', ['-o', `./answer_comparing/convertToExe/${solve_id}.exe`, `./answer_comparing/submit_codes/${solve_id}.c`], {
