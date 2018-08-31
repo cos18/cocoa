@@ -356,7 +356,7 @@ var app = http.createServer(function (request, response) {
     request.on('end', function () {
       var post = qs.parse(body);
       if (typeof (post.id) !== undefined) {
-        var html = template.submit_page(post.id);
+        var html = template.submit_page(post.id, topbar(request, response));
         response.writeHead(200);
         response.end(html);
       } else {
