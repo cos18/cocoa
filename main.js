@@ -50,7 +50,6 @@ var app = http.createServer(function (request, response) {
       response.end();
     }); 
   } else if (request.url.indexOf(".js") !== -1){
-    console.log(request.url);
     fs.readFile(`${request.url.substring(1, )}`, 'utf8', function(err, file){
       response.writeHead(200, {'Content-Type' : 'text/javascript'});
       response.write(file);
@@ -269,11 +268,7 @@ var app = http.createServer(function (request, response) {
         fs.readFile(`problem/${pb_id}/info.txt`, 'utf8', function (err, info) {
           fs.readFile(`problem/${pb_id}/input/1.txt`, 'utf8', function (err, input) {
             fs.readFile(`problem/${pb_id}/output/1.txt`, 'utf8', function (err, output) {
-<<<<<<< HEAD
               var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output, topbar(request, response));
-=======
-              var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output, topbar(request,response));
->>>>>>> 44e01fa398764e2a8f6a4d109b6e274ffec67ccc
               // 이 위의 부분에 표시할 html코드를 만들어야합니다.
               response.writeHead(200);
               response.end(html);
