@@ -7,42 +7,56 @@ var qs = require('querystring');
 var path = require('path');
 var template = require('./lib/template.js');
 var func = require('./lib/function.js');
-var mysql_con = require('./db/db_con')();
+var mysql_con = require('./db/db_con.js')();
 var cookie = require('cookie');
 
+var connection = mysql_con.init();
+var dbcon_sync = mysql_con.init_sync();
+
 function authIsOwner(request,response){
-  var isOwner = false;
+  isOwner = false;
   var cookies = {}
   if(request.headers.cookie){
     cookies = cookie.parse(request.headers.cookie);
   }
   // cookies의 id로 DB 접속해서 pw가 cookies의 status와 일치하면 true반환
+  dbcon_sync.query("USE cocoa_web");
   var stmt = `select * from Member where numid='${cookies.id}'`;
-  connection.query(stmt, function (err, result) {
-    if(cookies.status === result.passwd){
-      isOwner = true;
-    }
-    return isOwner;
-  });
+  var result = dbcon_sync.query(stmt)[0];
+  if(typeof(result) !== "undefined" && cookies.status === result.passwd){
+    isOwner = true;
+  }
+  return isOwner;
 }
 
 function topbar(request, response){
   var authStatusUI = `<div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>`;
+  //console.log(authIsOwner(request, response));
    if(authIsOwner(request, response)){
      authStatusUI = `<div id="logout" style="text-align:right;"><a href="/logout_process" style="padding:5px;">logout</a></div>`;
    }
 return authStatusUI;
 }
 
-var connection = mysql_con.init();
 
 var app = http.createServer(function (request, response) {
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname;
-
-  if (pathname === '/') { // 메인페이지인 경우
-    if (!topbar(request, response)) { // undefined면 home임.
+  if (request.url.indexOf(".css") !== -1){
+    fs.readFile(`${request.url.substring(1, )}`, 'utf8', function(err, file){
+      response.writeHead(200, {'Content-Type' : 'text/css'});
+      response.write(file);
+      response.end();
+    }); 
+  } else if (request.url.indexOf(".js") !== -1){
+    fs.readFile(`${request.url.substring(1, )}`, 'utf8', function(err, file){
+      response.writeHead(200, {'Content-Type' : 'text/javascript'});
+      response.write(file);
+      response.end();
+    }); 
+  } else if (pathname === '/') { // 메인페이지인 경우
+    if (!authIsOwner(request, response)) { // undefined면 home임.
       var html = template.HTML(`
         #menuwrap
         {
@@ -245,7 +259,6 @@ var app = http.createServer(function (request, response) {
     var stmt = `select * from Problem where pb_id=${pb_id}`;
     connection.query(stmt, function (err, result) {
       if (err) {
-        alert("Wrong Direction");
         response.writeHead(302, {
           Location: `/board`
         });
@@ -255,7 +268,7 @@ var app = http.createServer(function (request, response) {
         fs.readFile(`problem/${pb_id}/info.txt`, 'utf8', function (err, info) {
           fs.readFile(`problem/${pb_id}/input/1.txt`, 'utf8', function (err, input) {
             fs.readFile(`problem/${pb_id}/output/1.txt`, 'utf8', function (err, output) {
-              var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output);
+              var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output, topbar(request, response));
               // 이 위의 부분에 표시할 html코드를 만들어야합니다.
               response.writeHead(200);
               response.end(html);
@@ -288,7 +301,7 @@ var app = http.createServer(function (request, response) {
           <input type="submit" value="create"></input>
         </form>
       </div>`, topbar(request, response));
-    response.writeHead(300);
+    response.writeHead(200);
     response.end(html);
   } else if (pathname === '/create_process') {
     /*
@@ -321,12 +334,29 @@ var app = http.createServer(function (request, response) {
           });
 
           response.writeHead(302, {
-            Location: `/board`
+            Location: `/board/${pb_id}`
           }); // 302는 리다이렉션 하겠다는 뜻이라고 합니다.
           response.end();
         });
       });
     });
+  } else if (pathname === '/submit') {
+    var body = '';
+    request.on('data', function (data) { 
+      body = body + data; 
+    });
+    request.on('end', function () { 
+      var post = qs.parse(body);
+      if(typeof(post.id) !== undefined){
+        var html = template.submit_page(post.id);
+        response.writeHead(200);
+        response.end(html);
+      } else {
+        response.writeHead(404);
+        response.end("잘못된 접근입니다.");
+      }
+    });
   }
 });
+
 app.listen(80);

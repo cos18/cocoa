@@ -1,4 +1,5 @@
 var mysql = require('mysql');
+var smysql = require('sync-mysql');
 
 module.exports = function() {
     return {
@@ -19,6 +20,13 @@ module.exports = function() {
               console.info('mysql is connected successfully.');
             }
           })
+        },
+        init_sync: function() {
+          return new smysql({
+            host: 'cocoa-db.clggldx1p8di.ap-northeast-2.rds.amazonaws.com',
+            user: 'cocoaroot',
+            password: 'skkucomedu'
+          });
         }
       }
 }
