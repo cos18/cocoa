@@ -405,6 +405,7 @@ var app = http.createServer(function (request, response) {
                 console.log("result:" + result);
                 if (ans === result) {
                   console.log('CORRECT!');
+                  response.writeHead(200);
                   response.end("CORRECT!");
                 } else {
                   console.log('NO? SINGO');
