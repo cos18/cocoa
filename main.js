@@ -10,30 +10,15 @@ var func = require('./lib/function.js');
 var mysql_con = require('./db/db_con.js')();
 var cookie = require('cookie');
 var spawn = require('child_process').spawn;
+var auth = require('./lib/auth.js');
 
 var connection = mysql_con.init();
 var dbcon_sync = mysql_con.init_sync();
 
-function authIsOwner(request, response) {
-  isOwner = false;
-  var cookies = {}
-  if (request.headers.cookie) {
-    cookies = cookie.parse(request.headers.cookie);
-  }
-  // cookies의 id로 DB 접속해서 pw가 cookies의 status와 일치하면 true반환
-  dbcon_sync.query("USE cocoa_web");
-  var stmt = `select * from Member where numid='${cookies.id}'`;
-  var result = dbcon_sync.query(stmt)[0];
-  if (typeof (result) !== "undefined" && cookies.status === result.passwd) {
-    isOwner = true;
-  }
-  return isOwner;
-}
-
 function topbar(request, response) {
   var authStatusUI = `<div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>`;
   //console.log(authIsOwner(request, response));
-  if (authIsOwner(request, response)) {
+  if (auth.isOwner(request, response)) {
     authStatusUI = `<div id="logout" style="text-align:right;"><a href="/logout_process" style="padding:5px;">logout</a></div>`;
   }
   return authStatusUI;
@@ -61,7 +46,7 @@ var app = http.createServer(function (request, response) {
       response.end();
     });
   } else if (pathname === '/') { // 메인페이지인 경우
-    if (!authIsOwner(request, response)) { // undefined면 home임.
+    if (!auth.isOwner(request, response)) { // undefined면 home임.
       var html = template.HTML(`
         #menuwrap
         {
@@ -233,7 +218,7 @@ var app = http.createServer(function (request, response) {
     var stmt = 'select * from Problem';
     connection.query(stmt, function (err, result) {
       //console.log(result);
-      var list = template.problem_list(result);
+      var list = template.problem_list(result, request, response);
       var html = template.HTML(`
         #menuwrap{
           //width : auto;
@@ -253,7 +238,7 @@ var app = http.createServer(function (request, response) {
         </div>`,
         `
         <div id="mainwrap">
-          <div>
+          <div class="table-list">
             ${list}
             <input type="button" onclick="window.location.href='/create';" value="create" />
           </div>
@@ -365,7 +350,7 @@ var app = http.createServer(function (request, response) {
       }
     });
   } else if (pathname === '/submit_code') {
-    if (authIsOwner(request, response)){
+    if (auth.isOwner(request, response)){
       var body = '';
       request.on('data', function (data) {
         body = body + data;
@@ -375,10 +360,7 @@ var app = http.createServer(function (request, response) {
         var problemNumber = post.problemNumber;
         var submitCode = post.submitCode;
 
-        var cookies = {}
-        if (request.headers.cookie) {
-          cookies = cookie.parse(request.headers.cookie);
-        }
+        var cookies = auth.getCookies(request);
 
         var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${cookies.id}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
         connection.query(que, function (err, result) {
