@@ -8,22 +8,10 @@ var path = require('path');
 var template = require('./lib/template.js');
 var func = require('./lib/function.js');
 var mysql_con = require('./db/db_con.js')();
-var cookie = require('cookie');
 var spawn = require('child_process').spawn;
 var auth = require('./lib/auth.js');
 
 var connection = mysql_con.init();
-var dbcon_sync = mysql_con.init_sync();
-
-function topbar(request, response) {
-  var authStatusUI = `<div id="login" style="text-align:right;"><a href="/login" style="padding:5px;">login</a><a href="/join" style="padding:5px;">join </a></div>`;
-  //console.log(authIsOwner(request, response));
-  if (auth.isOwner(request, response)) {
-    authStatusUI = `<div id="logout" style="text-align:right;"><a href="/logout_process" style="padding:5px;">logout</a></div>`;
-  }
-  return authStatusUI;
-}
-
 
 var app = http.createServer(function (request, response) {
   var _url = request.url;
@@ -58,7 +46,7 @@ var app = http.createServer(function (request, response) {
         `<div id="menuwrap">
           <div id="menu" style="text-align:left;"><a href="/board">board</a> <a href="/result">result</a></div>
         </div>`,
-        `<h3>This is main page</h3>`, topbar(request, response));
+        `<h3>This is main page</h3>`, template.topbar(request, response));
       response.writeHead(200);
       response.end(html);
     } else {
@@ -73,7 +61,7 @@ var app = http.createServer(function (request, response) {
         `<div id="menuwrap">
           <div id="menu" style="text-align:left;"><a href="/board">board</a> <a href="/result">result</a></div>
         </div>`,
-        `<h3>Login success! Welcome!</h3>`, topbar(request, response));
+        `<h3>Login success! Welcome!</h3>`, template.topbar(request, response));
       response.writeHead(200);
       response.end(html);
     }
@@ -100,7 +88,7 @@ var app = http.createServer(function (request, response) {
       </form>
     `;
     var html = template.HTML('',
-      '', body, topbar(request, response));
+      '', body, template.topbar(request, response));
     response.writeHead(200);
     response.end(html);
   } else if (pathname === '/login_process') {
@@ -188,7 +176,7 @@ var app = http.createServer(function (request, response) {
           <input type="submit" value="JOIN">
         </p>
       </form>
-      `, topbar(request, response));
+      `, template.topbar(request, response));
     // 현재 아이디는 email 형식으로, 비번은 영문자, 숫자 포함 최소 8지 입력하게 해놓음
     // DB만들어지면 ID중복확인이나 닉네임 중복확인도 해야함
     response.writeHead(200);
@@ -243,7 +231,7 @@ var app = http.createServer(function (request, response) {
             <input type="button" onclick="window.location.href='/create';" value="create" />
           </div>
         </div>
-        `, topbar(request, response));
+        `, template.topbar(request, response));
       response.writeHead(200);
       response.end(html);
     });
@@ -261,7 +249,7 @@ var app = http.createServer(function (request, response) {
         fs.readFile(`problem/${pb_id}/info.txt`, 'utf8', function (err, info) {
           fs.readFile(`problem/${pb_id}/input/1.txt`, 'utf8', function (err, input) {
             fs.readFile(`problem/${pb_id}/output/1.txt`, 'utf8', function (err, output) {
-              var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output, topbar(request, response));
+              var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output, template.topbar(request, response));
               // 이 위의 부분에 표시할 html코드를 만들어야합니다.
               response.writeHead(200);
               response.end(html);
@@ -293,7 +281,7 @@ var app = http.createServer(function (request, response) {
           <p>Hint(shown in page) Number<input type="text" name="hint_num" style="margin-left:10px;" placeholder="number"></input></p>
           <input type="submit" value="create"></input>
         </form>
-      </div>`, topbar(request, response));
+      </div>`, template.topbar(request, response));
     response.writeHead(200);
     response.end(html);
   } else if (pathname === '/create_process') {
@@ -341,7 +329,7 @@ var app = http.createServer(function (request, response) {
     request.on('end', function () {
       var post = qs.parse(body);
       if (typeof (post.id) !== undefined) {
-        var html = template.submit_page(post.id, topbar(request, response));
+        var html = template.submit_page(post.id, template.topbar(request, response));
         response.writeHead(200);
         response.end(html);
       } else {
@@ -458,7 +446,7 @@ var app = http.createServer(function (request, response) {
             ${list}
           </div>
         </div>
-        `, topbar(request, response));
+        `, template.topbar(request, response));
       response.writeHead(200);
       response.end(html);
     });
