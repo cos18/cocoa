@@ -7,10 +7,14 @@
     "lib": "lib"
   },
   "dependencies": {
+    "body-parser": "^1.18.3",
     "compile-run": "^1.2.2",
+    "compression": "^1.7.3",
     "cookie": "^0.3.1",
+    "express": "^4.16.3",
     "gcc": "^1.0.2",
     "hackerearth-node": "^2.3.9",
+    "helmet": "^3.13.0",
     "mysql": "latest",
     "platform-tools": "^0.3.1",
     "shelljs": "^0.8.2",
