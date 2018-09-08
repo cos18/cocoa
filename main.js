@@ -51,7 +51,7 @@ app.get('/', function(request, response){
         padding : 5px;
       }`,
       `<div id="menuwrap">
-        <div id="menu" style="text-align:left;"><a href="/problem ">board</a> <a href="/result">result</a></div>
+        <div id="menu" style="text-align:left;"><a href="/problem">board</a> <a href="/result">result</a></div>
       </div>`,
       `<h3>This is main page</h3>`, template.topbar(request, response));
     response.send(html);
