@@ -1,15 +1,13 @@
 var express = require('express');
 var app = express();
-
+var fs = require('fs');
 var bodyParser = require('body-parser');    // 본문 파싱
 var compression = require('compression');   // 압축해주는 서드파티
 var http = require('http');
-var fs = require('fs');
-var url = require('url');
+
 var qs = require('querystring');
-
-
 var path = require('path');
+
 var template = require('./lib/template.js');
 var func = require('./lib/function.js');
 var mysql_con = require('./db/db_con.js')();
@@ -25,7 +23,6 @@ app.get('*', function(request, response, next){
         'Content-Type': 'text/css'
       });
       response.write(file);
-      response.end();
     });
   } else if (request.url.indexOf(".js") !== -1) {
     fs.readFile(`${request.url.substring(1, )}`, 'utf8', function (err, file) {
@@ -33,9 +30,9 @@ app.get('*', function(request, response, next){
         'Content-Type': 'text/javascript'
       });
       response.write(file);
-      response.end();
     });
   }
+  next();
 });
 
 app.use(bodyParser.urlencoded({ extended: false })); // form 형식을 받을때 bodyParser라는 미들웨어가 알아서 parsing 해주고 그 결과 request에 body라는 객체?가 생긴대요
@@ -54,7 +51,7 @@ app.get('/', function(request, response){
         padding : 5px;
       }`,
       `<div id="menuwrap">
-        <div id="menu" style="text-align:left;"><a href="/board">board</a> <a href="/result">result</a></div>
+        <div id="menu" style="text-align:left;"><a href="/problem ">board</a> <a href="/result">result</a></div>
       </div>`,
       `<h3>This is main page</h3>`, template.topbar(request, response));
     response.send(html);
@@ -68,7 +65,7 @@ app.get('/', function(request, response){
         padding : 5px;
       }`,
       `<div id="menuwrap">
-        <div id="menu" style="text-align:left;"><a href="/board">board</a> <a href="/result">result</a></div>
+        <div id="menu" style="text-align:left;"><a href="/problem">board</a> <a href="/result">result</a></div>
       </div>`,
       `<h3>Login success! Welcome!</h3>`, template.topbar(request, response));
     response.send(html);
@@ -78,9 +75,9 @@ app.get('/', function(request, response){
 // 로그인페이지
 app.get('/login', function(request, response){
   var body = "";
-    if (queryData.error === 'true') {
+    if (request.query.error === 'true') {
       body = body + '<h4>Login Error! Check Id or password</h4>';
-    } else if (queryData.error === 'nologin') {
+    } else if (request.query.error === 'nologin') {
       body = body + '<h4>You must login before submit</h4>';
     }
     body = body + `
@@ -317,7 +314,7 @@ app.post('/problem/submit_code', function(request, response){
     
               run.on('exit', function (output) {
                 console.log('stdout: ' + output + "!");
-                fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
+                fs.readFile(`./problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
                   console.log("ans:" + ans);
                   fs.readFile(`./tmp.txt`, 'utf8', function (err, result) {
                     console.log("result" + result);
@@ -363,6 +360,7 @@ app.post('/problem/submit_code', function(request, response){
 
 // 개별문제 페이지
 app.get('/problem/:problem_id', function(request, response){
+  console.log(request.params.problem_id);
   var pb_id = request.params.problem_id;
   if(pb_id === undefined)
     response.status(404).send('잘못된 접근입니다');
@@ -377,7 +375,7 @@ app.get('/problem/:problem_id', function(request, response){
           fs.readFile(`problem/${pb_id}/input/1.txt`, 'utf8', function (err, input) {
             fs.readFile(`problem/${pb_id}/output/1.txt`, 'utf8', function (err, output) {
               var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output, template.topbar(request, response));
-              response.redirect(html);
+              response.end(html);
             });
           });
         });
@@ -394,19 +392,14 @@ app.get('/result', function(request, response){
     var list = template.result_list(result);
     var html = template.HTML(`
       #menuwrap{
-        //width : auto;
         border-top : 3px solid black;
         border-bottom : 3px solid black;
         padding : 5px;
       }
-      #boardwrap{
-        //display : grid;
-        //grid-template : auto / 140px auto;
-        //grid-gap : 3px;
-      }`,
+     `,
       `<div id="menuwrap">
           <div id="menu" style="text-align:left; font-weight:bold;">
-            <a href="/board">board</a> <a href="/result">result</a>
+            <a href="/problem">board</a> <a href="/result">result</a>
           </div>
       </div>`,
       `
