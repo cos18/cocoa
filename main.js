@@ -1,7 +1,8 @@
 var express = require('express');
 var app = express();
 
-var bodyParser = require('body-parser');
+var bodyParser = require('body-parser');    // 본문 파싱
+var compression = require('compression');   // 압축해주는 서드파티
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
