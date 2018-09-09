@@ -119,7 +119,7 @@ router.get('/', function(request, response){
       
             compile.on('exit', function (data) {
               if (data === 0) {
-                var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/1.txt`, '>', '/tmp.txt'], {
+                var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/1.txt`, '>', 'tmp.txt'], {
                   shell: true
                 });
       
