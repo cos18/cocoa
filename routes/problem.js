@@ -8,6 +8,7 @@ var spawn = require('child_process').spawn;
 
 var connection = mysql_con.init();
 
+// 확인해본 결과 writefile, readfile, mkdir 등등 함수에서 파일 위치를 쓸 때는 '../', './', '/' 말고 그냥 바로 '주소'로 들어가도 되고 이게 안 헷갈릴 것 같습니다.
 
 // 문제게시판 페이지
 router.get('/', function(request, response){
@@ -78,7 +79,6 @@ router.get('/', function(request, response){
   })
   
   // 문제제출 페이지
-  // 여기서 제대로 코드 창 안나옴. 오류
   router.post('/submit', function(request, response){
     var post = request.body;
     if (typeof (post.id) !== undefined) {
