@@ -1,0 +1,41 @@
+.list{
+    width: 100%;
+    border: 1px solid #444444;
+    margin-top: 10px;
+}
+#domain{
+    color : black;
+    text-decoration : none;
+}
+body{
+    align-content : center;
+    margin-left : 100px;
+    margin-right : 100px;
+    padding : 10px;
+    height : 1000px;
+}
+a {
+    color : black;
+    text-decoration : none;
+}
+#menuwrap{
+  border-top : 3px solid black;
+  border-bottom : 3px solid black;
+  padding : 5px;
+}
+#join{
+    display : grid;
+    border : 3px solid black;
+    width : 400px;
+    padding : 10px;
+}
+#writeboard{
+    border : 3px solid;
+    margin-bottom : 200px;
+    min-width : 600px;
+}
+#problem{
+    padding : 10px;
+    margin-top : 10px;
+    border : 3px solid;
+  }
