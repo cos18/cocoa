@@ -16,25 +16,23 @@ var auth = require('./lib/auth.js');
 
 var connection = mysql_con.init();
 
+// 요녀석만 어떻게 하면 되는데..
+/*
 app.get('*', function(request, response, next){
   if (request.url.indexOf(".css") !== -1) {
     fs.readFile(`${request.url.substring(1, )}`, 'utf8', function (err, file) {
-      response.writeHead(200, {
-        'Content-Type': 'text/css'
-      });
+      response.setHeader("Content-Type", "text/css");
       response.write(file);
     });
   } else if (request.url.indexOf(".js") !== -1) {
     fs.readFile(`${request.url.substring(1, )}`, 'utf8', function (err, file) {
-      response.writeHead(200, {
-        'Content-Type': 'text/javascript'
-      });
+      response.setHeader("Content-Type", "text/javascript");
       response.write(file);
     });
   }
   next();
 });
-
+*/
 app.use(bodyParser.urlencoded({ extended: false })); // form 형식을 받을때 bodyParser라는 미들웨어가 알아서 parsing 해주고 그 결과 request에 body라는 객체?가 생긴대요
 app.use(compression()); // compression이  실행되고 미들웨어가 장착됨
 
@@ -123,8 +121,7 @@ app.post('/login_process', function(request, response){
 })
 
 // 로그아웃 처리 페이지
-app.post('/logout_process', function(request, response){
-  var post = request.body;
+app.get('/logout_process', function(request, response){
     // express 방식으로 바꿔야합니다
     response.writeHead(302, {
       'Set-Cookie': [
