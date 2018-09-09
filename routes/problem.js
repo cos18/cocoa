@@ -104,7 +104,7 @@ router.get('/', function(request, response){
         connection.query(que, function (err, result) {
           solve_id = result[0].solve_id;
           fs.writeFile(`answer_comparing/submit_codes/${solve_id}.c`, submitCode, 'utf8', function (err) {
-            // 이 아래 컴파일이 안된다
+            // 내 컴퓨터에서는 컴파일이 안되지만 저쪽 리눅스에선 잘되네...
             var compile = spawn('gcc', ['-o', `answer_comparing/convertToExe/${solve_id}.exe`, `answer_comparing/submit_codes/${solve_id}.c`], {
               shell: true
             });
@@ -147,12 +147,11 @@ router.get('/', function(request, response){
                   });
                 });
               } else { // 컴파일에러
-                /*작업을 위해 주석처리했습니다.
                 que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
                 connection.query(que, function (err, result){
                   response.writeHead(302, {Location : `/result`});
                   response.end('Compile ERROR!!');
-                });*/
+                });
                 response.send('Compile ERROR!!');
               }
             });
