@@ -152,7 +152,6 @@ router.get('/', function(request, response){
                   response.writeHead(302, {Location : `/result`});
                   response.end('Compile ERROR!!');
                 });
-                response.send('Compile ERROR!!');
               }
             });
             //response.writeHead(200);
