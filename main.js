@@ -3,20 +3,20 @@ var app = express();
 var fs = require('fs');
 var bodyParser = require('body-parser');    // 본문 파싱
 var compression = require('compression');   // 압축해주는 서드파티
-var http = require('http');
+var spawn = require('child_process').spawn;
 
+var http = require('http');
 var qs = require('querystring');
 var path = require('path');
 
 var template = require('./lib/template.js');
 var func = require('./lib/function.js');
 var mysql_con = require('./db/db_con.js')();
-var spawn = require('child_process').spawn;
 var auth = require('./lib/auth.js');
 
 var connection = mysql_con.init();
 
-// 요녀석만 어떻게 하면 되는데..
+// 이친구는 어떻게 해야할까요
 /*
 app.get('*', function(request, response, next){
   if (request.url.indexOf(".css") !== -1) {
@@ -33,6 +33,7 @@ app.get('*', function(request, response, next){
   next();
 });
 */
+
 app.use(bodyParser.urlencoded({ extended: false })); // form 형식을 받을때 bodyParser라는 미들웨어가 알아서 parsing 해주고 그 결과 request에 body라는 객체?가 생긴대요
 app.use(compression()); // compression이  실행되고 미들웨어가 장착됨
 
@@ -266,6 +267,7 @@ app.post('/problem/create_process', function(request, response){
 })
 
 // 문제제출 페이지
+// 여기서 제대로 코드 창 안나옴. 오류
 app.post('/problem/submit', function(request, response){
   var post = request.body;
   if (typeof (post.id) !== undefined) {
@@ -426,49 +428,3 @@ app.use(function (err, req, res, next) {
 app.listen(80, function() {
   console.log('app listening on port 80!')
 });
-
-
-/*
-var app = http.createServer(function (request, response) {
-  var _url = request.url;
-  var queryData = url.parse(_url, true).query;
-  var pathname = url.parse(_url, true).pathname;
-  
-  } else if (pathname === '/') { // 메인페이지인 경우
-    
-
-    // login이 끝난경우 보여져야 할 목록이 달라져야 할겁니다. id 값을 뭘 주고 홈페이지 상에서는 보이지 않게 하던가
-    // login이 된 상태라면 계속 보여져야 할 목록이 달라질거임. <- 로그인이 된 상태인지 계속 확인하는 법이 필요
-    // 관리자일 경우, 교수/지도자 일 경우, 학생일 경우
-
-  } else if (pathname === '/login') {
-    
-  } else if (pathname === '/login_process') {
-    
-    
-  } else if (pathname === '/logout_process') {
-    
-  } else if (pathname === '/join') {
-    
-  } else if (pathname === '/join_process') {
-    
-  } else if (pathname === '/board') {
-
-    
-  } else if (pathname.substr(0, 7) === "/board/" && pathname.substring(7, ) !== "") {
-    
-  } else if (pathname === '/create') {
-    
-  } else if (pathname === '/create_process') {
-    
-  } else if (pathname === '/submit') {
-    
-  } else if (pathname === '/submit_code') {
-    
-  } else if(pathname === '/result'){
-    
-  } 
-});
-
-app.listen(80);
-*/
