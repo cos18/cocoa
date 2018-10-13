@@ -120,44 +120,38 @@ router.get('/', function(request, response){
             compile.on('exit', function (data) {
               var files=fs.readdirSync(`problem/${problemNumber}/input`);
               console.log(files);
-              var i;
-              var ifWrong=0;
+              for(var i=0;i<files.length;i++){
+                
+              }
               if (data === 0) {
-                for(i=1;i<=files.length;i++){
-                  var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/${i}.txt`, '>', 'tmp.txt'], {
-                    shell: true //답 비교를 위해 컴파일한 파일 실행
-                  });
-        
-                  run.on('exit', function (output) {
-                    console.log('stdout: ' + output + "!");
-                    fs.readFile(`problem/${problemNumber}/output/${i}.txt`, 'utf8', function (err, ans) {
-                      console.log("ans:" + ans);
-                      fs.readFile(`tmp.txt`, 'utf8', function (err, result) {
-                        console.log("result: " + result);
-                         if(ans !==result) {
-                          ifWrong++;
-                        }
-                        
-                      });
-                    });
-                  });
-                }
-                if (ifWrong===0) { //정답
-                  que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
-                  connection.query(que, function (err, result){
-                    response.writeHead(302, {Location : `/result`});
-                    response.end('Correct!');
-                  });
-                }
-                //
-                else{
-                  que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
+                var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/1.txt`, '>', 'tmp.txt'], {
+                  shell: true //답 비교를 위해 컴파일한 파일 실행
+                });
+      
+                run.on('exit', function (output) {
+                  console.log('stdout: ' + output + "!");
+                  fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
+                    console.log("ans:" + ans);
+                    fs.readFile(`tmp.txt`, 'utf8', function (err, result) {
+                      console.log("result" + result);
+                      if (ans === result) { //답 비교
+                        que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
+                        connection.query(que, function (err, result){
+                          response.writeHead(302, {Location : `/result`});
+                          response.end('Correct!');
+                        });
+                      } else {
+                        que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
                         connection.query(que, function (err, result){
                           response.writeHead(302, {Location : `/result`});
                           response.end('NO? SINGO');
                         });
-                }
-                //
+                      }
+                      
+                    });
+                  });
+                  //
+                });
               } else { // 컴파일에러
                 que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
                 connection.query(que, function (err, result){
