@@ -140,22 +140,21 @@ router.get('/', function(request, response){
                       });
                     });
                   });
-                  if (i===files.length+1) { //답 비교
-                    que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
-                    connection.query(que, function (err, result){
-                      response.writeHead(302, {Location : `/result`});
-                      response.end('Correct!');
-                    });
-                  }
-                  //
-                  else{
-                    que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
-                          connection.query(que, function (err, result){
-                            response.writeHead(302, {Location : `/result`});
-                            response.end('NO? SINGO');
-                          });
-                  }
-                  //
+                }
+                if (i===files.length+1) { //답 비교
+                  que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
+                  connection.query(que, function (err, result){
+                    response.writeHead(302, {Location : `/result`});
+                    response.end('Correct!');
+                  });
+                }
+                //
+                else{
+                  que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
+                        connection.query(que, function (err, result){
+                          response.writeHead(302, {Location : `/result`});
+                          response.end('NO? SINGO');
+                        });
                 }
                 //
               } else { // 컴파일에러
