@@ -121,6 +121,7 @@ router.get('/', function(request, response){
               var files=fs.readdirSync(`problem/${problemNumber}/input`);
               console.log(files);
               var i;
+              var ifWrong=0;
               if (data === 0) {
                 for(i=1;i<=files.length;i++){
                   var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/${i}.txt`, '>', 'tmp.txt'], {
@@ -134,14 +135,14 @@ router.get('/', function(request, response){
                       fs.readFile(`tmp.txt`, 'utf8', function (err, result) {
                         console.log("result: " + result);
                          if(ans !==result) {
-                           break;
+                          ifWrong++;
                         }
                         
                       });
                     });
                   });
                 }
-                if (i===files.length+1) { //답 비교
+                if (ifWrong===0) { //정답
                   que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
                   connection.query(que, function (err, result){
                     response.writeHead(302, {Location : `/result`});
