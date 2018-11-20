@@ -118,9 +118,14 @@ router.get('/', function(request, response){
             });
       
             compile.on('exit', function (data) {
+              var files=fs.readdirSync(`problem/${problemNumber}/input`);
+              console.log(files);
+              for(var i=0;i<files.length;i++){
+                
+              }
               if (data === 0) {
                 var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/1.txt`, '>', 'tmp.txt'], {
-                  shell: true
+                  shell: true //답 비교를 위해 컴파일한 파일 실행
                 });
       
                 run.on('exit', function (output) {
@@ -129,7 +134,7 @@ router.get('/', function(request, response){
                     console.log("ans:" + ans);
                     fs.readFile(`tmp.txt`, 'utf8', function (err, result) {
                       console.log("result" + result);
-                      if (ans === result) {
+                      if (ans === result) { //답 비교
                         que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
                         connection.query(que, function (err, result){
                           response.writeHead(302, {Location : `/result`});
@@ -145,6 +150,7 @@ router.get('/', function(request, response){
                       
                     });
                   });
+                  //
                 });
               } else { // 컴파일에러
                 que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
