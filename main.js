@@ -139,9 +139,22 @@ app.post('/join_process', function(request, response){
   });
 })
 
-
-
-
+// 마이페이지
+app.get('/mypage', function(request, response){
+  if (auth.isOwner(request, response)){
+    var html = template.HTML(``,
+    template.topbar(request, response)
+    );
+    response.send(html);
+  }
+  else {
+    console.log("login error!");
+    response.writeHead(302, {
+      Location: `/login?error=nologin`
+    });
+    response.end();
+  }
+})
 
 // 채점결과 페이지
 app.get('/result', function(request, response){
