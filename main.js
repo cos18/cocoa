@@ -158,7 +158,7 @@ app.get('/mypage', function(request, response){
 
 // 채점결과 페이지
 app.get('/result', function(request, response){
-  var stmt = 'select * from Solve ORDER BY solve_id DESC';
+  var stmt = 'select * from Solve ORDER BY solve_id DESC LIMIT 10;';
   connection.query(stmt, function (err, result) {
     var list = template.result_list(result);
     var html = template.HTML(`
