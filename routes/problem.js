@@ -8,6 +8,15 @@ var spawn = require('child_process').spawn;
 
 var connection = mysql_con.init();
 
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
 // 확인해본 결과 writefile, readfile, mkdir 등등 함수에서 파일 위치를 쓸 때는 '../', './', '/' 말고 그냥 바로 '주소'로 들어가도 되고 이게 안 헷갈릴 것 같습니다.
 
 // 문제게시판 페이지
@@ -119,39 +128,54 @@ router.get('/', function(request, response){
       
             compile.on('exit', function (data) {
               var files=fs.readdirSync(`problem/${problemNumber}/input`);
+              var correctAnswer=0;
               console.log(files);
-              for(var i=0;i<files.length;i++){
-                
-              }
               if (data === 0) {
-                var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/1.txt`, '>', 'tmp.txt'], {
-                  shell: true //답 비교를 위해 컴파일한 파일 실행
-                });
-      
-                run.on('exit', function (output) {
-                  console.log('stdout: ' + output + "!");
-                  fs.readFile(`problem/${problemNumber}/output/1.txt`, 'utf8', function (err, ans) {
-                    console.log("ans:" + ans);
-                    fs.readFile(`tmp.txt`, 'utf8', function (err, result) {
-                      console.log("result" + result);
-                      if (ans === result) { //답 비교
-                        que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
-                        connection.query(que, function (err, result){
-                          response.writeHead(302, {Location : `/result`});
-                          response.end('Correct!');
-                        });
-                      } else {
-                        que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
-                        connection.query(que, function (err, result){
-                          response.writeHead(302, {Location : `/result`});
-                          response.end('NO? SINGO');
-                        });
-                      }
-                      
-                    });
+                
+                for(var ioNum=1; ioNum<=files.length; ioNum++){
+
+                  var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/1.txt`,'>', `tmp.txt`], {
+                    shell: true //답 비교를 위해 컴파일한 파일 실행
                   });
+
+                  sleep(5000);
+
+                  ans=fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
+                  console.log("ans : " + ans);
+                    
+                  ansN=fs.readFileSync(`problem/${problemNumber}/output/${ioNum}n.txt`, 'utf8')
+                  console.log("ansN : ",+ansN)
+
+                  result=fs.readFileSync(`tmp.txt`, 'utf8')
+                  console.log("result : " + result);
+                        
+                  if (ans === result || ansN === result) { //답 비교
+                    correctAnswer++;
+                  }
+
+                  sleep(5000);
+
+                } //for
+
+                sleep(2000);
+                
+                console.log("correctAnswer = ", correctAnswer);
+                console.log("flies.length = ", files.length);
+                if (correctAnswer === files.length) { //여기 수정해
+                  que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
+                  connection.query(que, function (err, result){
+                    response.writeHead(302, {Location : `/result`});
+                    response.end('Correct!');
+                  });
+                } else {
+                  que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
+                  connection.query(que, function (err, result){
+                    response.writeHead(302, {Location : `/result`});
+                    response.end('NO? SINGO');
+                  });
+                }
                   //
-                });
+
               } else { // 컴파일에러
                 que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
                 connection.query(que, function (err, result){
