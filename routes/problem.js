@@ -78,6 +78,7 @@ router.get('/', function(request, response){
     });
   })
   
+  /* 문제보기+제출페이지를 통일했습니다.
   // 문제제출 페이지
   router.post('/submit', function(request, response){
     var post = request.body;
@@ -88,6 +89,7 @@ router.get('/', function(request, response){
       response.status(404).send('잘못된 접근입니다');
     }
   })
+  */
   
   // 문제제출채점 페이지
   router.post('/submit_code', function(request, response){
