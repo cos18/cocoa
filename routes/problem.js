@@ -136,30 +136,35 @@ router.get('/', function(request, response){
                 
                 for(var ioNum=1; ioNum<=files.length; ioNum++){
 
-                  var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/1.txt`,'>', `tmp.txt`], {
+                  var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/${ioNum}.txt`,'>', `tmp.txt`], {
                     shell: true //답 비교를 위해 컴파일한 파일 실행
                   });
 
-                  sleep(5000);
+                  sleep(100);
 
                   ans=fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
                   console.log("ans : " + ans);
-                    
-                  ansN=fs.readFileSync(`problem/${problemNumber}/output/${ioNum}n.txt`, 'utf8')
-                  console.log("ansN : ",+ansN)
 
                   result=fs.readFileSync(`tmp.txt`, 'utf8')
                   console.log("result : " + result);
-                        
-                  if (ans === result || ansN === result) { //답 비교
+                  console.log("rltLeng : " + result.length);  
+                  
+                  var cut;
+                  for(cut=result.length-1; cut>0; cut--){
+                    console.log(cut); 
+                    if(result[cut]!='\n'&&result[cut]!=' '){
+                       break;
+                    }
+                  }
+                  result=result.substring(0,cut+1);
+                  console.log("rltChg : " + result);
+
+                  if (ans === result) { //답 비교
                     correctAnswer++;
                   }
 
-                  sleep(5000);
-
                 } //for
 
-                sleep(2000);
                 
                 console.log("correctAnswer = ", correctAnswer);
                 console.log("flies.length = ", files.length);
