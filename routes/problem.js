@@ -8,6 +8,7 @@ var spawn = require('child_process').spawn;
 
 var connection = mysql_con.init();
 
+//슬립을 위한 함수입니다.
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
@@ -134,21 +135,25 @@ router.get('/', function(request, response){
               console.log(files);
               if (data === 0) {
                 
+                //해당 문제의 테스트케이스 만큼 반복합니다.
                 for(var ioNum=1; ioNum<=files.length; ioNum++){
 
                   var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/${ioNum}.txt`,'>', `tmp.txt`], {
                     shell: true //답 비교를 위해 컴파일한 파일 실행
                   });
 
-                  sleep(100);
+                  sleep(100); //실행완료를 위해 잠시 대기합니다.
 
+                  //정답 파일을 읽어옵니다.
                   ans=fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
                   console.log("ans : " + ans);
 
+                  //결과 파일을 읽어옵니다.
                   result=fs.readFileSync(`tmp.txt`, 'utf8')
                   console.log("result : " + result);
                   console.log("rltLeng : " + result.length);  
                   
+                  //혹시 결과 파일 뒤에 개행이나 공백이 있으면 제거해줍니다.
                   var cut;
                   for(cut=result.length-1; cut>0; cut--){
                     console.log(cut); 
@@ -159,7 +164,7 @@ router.get('/', function(request, response){
                   result=result.substring(0,cut+1);
                   console.log("rltChg : " + result);
 
-                  if (ans === result) { //답 비교
+                  if (ans === result) { //답이 맞으면 맞은 문제 수에 1씩 더합니다.
                     correctAnswer++;
                   }
 
@@ -168,7 +173,8 @@ router.get('/', function(request, response){
                 
                 console.log("correctAnswer = ", correctAnswer);
                 console.log("flies.length = ", files.length);
-                if (correctAnswer === files.length) { //여기 수정해
+                //테스트케이스의 수와 맞은 케이스의 수가 같으면 정답 처리를 합니다.
+                if (correctAnswer === files.length) {
                   que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
                   connection.query(que, function (err, result){
                     response.writeHead(302, {Location : `/result`});
@@ -181,7 +187,7 @@ router.get('/', function(request, response){
                     response.end('NO? SINGO');
                   });
                 }
-                  //
+        
 
               } else { // 컴파일에러
                 que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
