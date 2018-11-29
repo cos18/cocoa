@@ -8,16 +8,6 @@ var spawn = require('child_process').spawn;
 
 var connection = mysql_con.init();
 
-//슬립을 위한 함수입니다.
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}
-
 // 확인해본 결과 writefile, readfile, mkdir 등등 함수에서 파일 위치를 쓸 때는 '../', './', '/' 말고 그냥 바로 '주소'로 들어가도 되고 이게 안 헷갈릴 것 같습니다.
 
 // 문제게시판 페이지
@@ -142,7 +132,7 @@ router.get('/', function(request, response){
                     shell: true //답 비교를 위해 컴파일한 파일 실행
                   });
 
-                  sleep(100); //실행완료를 위해 잠시 대기합니다.
+                  for(var waitShell=0; waitShell<100000000; waitShell++);
 
                   //정답 파일을 읽어옵니다.
                   ans=fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
