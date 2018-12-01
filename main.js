@@ -159,33 +159,6 @@ app.get('/result', function (request, response) {
   });
 })
 
-// 개인 채점 결과 페이지
-app.get('/mypage/priv_result', function (request, response) {
-  if (auth.isOwner(request, response)) {
-    // 이부분을 수정하던, 템플릿을 수정하던 해서 왼쪽에 세부 메뉴를 띄우고 가운데 창에 다른 정보 표시하기
-    var html = template.HTML(`
-    <div class=wrapper>
-      <aside id=side_menu>
-        <p><a href="/login_update">개인정보 수정</a></p>
-        <p><a href="/priv_result">채점결과</a></p>
-        <p><a href="/problem_rcmd">문제 추천</a></p>
-        <p><a href="/announce">알림</a></p>
-      </aside>
-      <div id=con></div>
-    </div>
-    `,
-      template.topbar(request, response)
-    );
-    response.send(html);
-  } else {
-    console.log("login error!");
-    response.writeHead(302, {
-      Location: `/login?error=nologin`
-    });
-    response.end();
-  }
-})
-
 // 페이지 경로 없는 경우 (404)
 app.use(function (req, res, next) {
   res.status(404).send('Sorry cant find that!');

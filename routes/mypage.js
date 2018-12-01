@@ -23,6 +23,7 @@ router.get('/', function(request, response){
     }
 })
 
+// 채점 결과 페이지
 router.post('/result', function(request, response){
   if(auth.isOwner(request, response)){
     
@@ -34,4 +35,44 @@ router.post('/result', function(request, response){
       response.end();
   }
 })
+
+// 개인정보 수정 페이지
+router.post('/private', function(request, response){
+  if(auth.isOwner(request, response)){
+    
+  } else {
+    console.log("login error!");
+      response.writeHead(302, {
+        Location: `/login?error=nologin`
+      });
+      response.end();
+  }
+})
+
+// 문제 추천 페이지
+router.post('/recommend', function(request, response){
+  if(auth.isOwner(request, response)){
+    
+  } else {
+    console.log("login error!");
+      response.writeHead(302, {
+        Location: `/login?error=nologin`
+      });
+      response.end();
+  }
+})
+
+// 알림 페이지
+router.post('/announce', function(request, response){
+  if(auth.isOwner(request, response)){
+    
+  } else {
+    console.log("login error!");
+      response.writeHead(302, {
+        Location: `/login?error=nologin`
+      });
+      response.end();
+  }
+})
+
 module.exports = router;
