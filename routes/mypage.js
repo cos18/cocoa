@@ -25,7 +25,8 @@ router.get('/', function(request, response){
 
 router.post('/result', function(request, response){
   if(auth.isOwner(request, response)){
-    
+    var html = template.mypage("채점 결과", 'hello', template.topbar(request, response));
+    response.send(html);
   } else {
     console.log("login error!");
       response.writeHead(302, {
