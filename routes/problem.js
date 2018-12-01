@@ -130,9 +130,9 @@ router.post('/submit_code', function (request, response) {
 
                 var timeLimit=1000; // 여기를 서버에서 불러온 리밋값으로 바꾸면 될 것 같습니다.
                 //timeLimit/=1000; // ms -> s
-                timeLimit=0;
+                timeLimit=1;
                 
-                var run = spawn('timeout', [`${timeLimit}s`, `answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`], {
+                var run = spawn('timeout', [`${timeLimit}s`, `./answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`], {
                   shell: true //답 비교를 위해 컴파일한 파일 실행
                 });
 
@@ -148,7 +148,10 @@ router.post('/submit_code', function (request, response) {
                 var timeLimitCheck = fs.readFileSync(`TLE.txt`, 'utf8');
               
                 var TLE=true;
+                console.log('timeLimitCheck : '+timeLimitCheck);
+                console.log('timeLimitCheck[0] : '+timeLimitCheck[0]);
                 if (timeLimitCheck[0]!=='0'){
+                    console.log('in if!!');
                     TLE=false;
                     break;
                 }
