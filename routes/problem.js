@@ -128,11 +128,34 @@ router.post('/submit_code', function (request, response) {
               //해당 문제의 테스트케이스 만큼 반복합니다.
               for (var ioNum = 1; ioNum <= files.length; ioNum++) {
 
-                var run = spawn(`answer_comparing/convertToExe/${solve_id}.exe`, ['<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`], {
+                var timeLimit=1000; // 여기를 서버에서 불러온 리밋값으로 바꾸면 될 것 같습니다.
+                //timeLimit/=1000; // ms -> s
+                timeLimit=0;
+                
+                var run = spawn('timeout', [`${timeLimit}s`, `answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`], {
                   shell: true //답 비교를 위해 컴파일한 파일 실행
                 });
 
-                for(var waitShell=0; waitShell<100000000; waitShell++);
+                for(var waitShell=0; waitShell<10000000; waitShell++);
+
+                var run = spawn('echo', ['$?', '>', 'TLE.txt'], {
+                  shell: true //echo
+                });
+                //console.log("echo : " + run);         
+
+                for(var waitShell=0; waitShell<10000000; waitShell++);
+
+                var timeLimitCheck = fs.readFileSync(`TLE.txt`, 'utf8');
+              
+                var TLE=true;
+                if (timeLimitCheck[0]!=='0'){
+                    TLE=false;
+                    break;
+                }
+
+                console.log("run : " + run);
+                console.log("TLE : " + TLE);
+                console.log("timeLimitCheck : " + timeLimitCheck);
 
                 //정답 파일을 읽어옵니다.
                 ans = fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
@@ -172,6 +195,16 @@ router.post('/submit_code', function (request, response) {
                   });
                   response.end('Correct!');
                 });
+              } else if(TLE===false){
+                que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
+                connection.query(que, function (err, result) {
+                  response.writeHead(302, {
+                    Location: `/result`
+                  });
+                  response.end('NO? SINGO');
+                });
+                console.log("TLE : " + TLE);
+                //여기에 시간초과 반환 코드 넣어주면 될꺼 같습니다. 
               } else {
                 que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
                 connection.query(que, function (err, result) {
