@@ -19,7 +19,7 @@ router.get('/', function (request, response) {
         <div id="mainwrap">
           <div class="table-list">
             ${list}
-            <input type="button" onclick="window.location.href='/problem/create';" value="create" />
+            <button class="ui button" onclick="window.location.href='/problem/create';">문제 생성</button>
           </div>
         </div>
         `, template.topbar(request, response), "Board");
@@ -124,105 +124,93 @@ router.post('/submit_code', function (request, response) {
             var correctAnswer = 0;
             console.log(files);
             if (data === 0) {
+              que = `select * FROM Problem where pb_id=${problemNumber};`;
+              connection.query(que, function (err, result) {
+                let timeLimit = result[0].lim_time;
+                timeLimit /= 1000;
+                //해당 문제의 테스트케이스 만큼 반복합니다.
+                console.log("Time Limit : ", timeLimit);
+                for (var ioNum = 1; ioNum <= files.length; ioNum++) {
+                  var run = spawn('timeout', [`${timeLimit}s`, `./answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`, ';', 'echo', '$?', '>', 'TLE.txt'], {
+                    shell: true //답 비교를 위해 컴파일한 파일 실행
+                  });
 
-              //해당 문제의 테스트케이스 만큼 반복합니다.
-              for (var ioNum = 1; ioNum <= files.length; ioNum++) {
+                  for (var waitShell = 0; waitShell < 50000000; waitShell++);
 
-                var timeLimit=1000; // 여기를 서버에서 불러온 리밋값으로 바꾸면 될 것 같습니다.
-                //timeLimit/=1000; // ms -> s
-                timeLimit=1;
-                
-                var run = spawn('timeout', [`${timeLimit}s`, `./answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`, ';', 'echo', '$?', '>', 'TLE.txt'], {
-                  shell: true //답 비교를 위해 컴파일한 파일 실행
-<<<<<<< HEAD
-                });
+                  var timeLimitCheck = fs.readFileSync(`TLE.txt`, 'utf8');
 
-                //for(var waitShell=0; waitShell<10000000; waitShell++);
-
-                var run = spawn('echo', ['$?', '>', 'TLE.txt'], {
-                  shell: true //echo
-                });
-                //console.log("echo : " + run);         
-=======
-                });       
->>>>>>> 14758abb28f8b281e68171a68e64b57bb61c8974
-
-                for(var waitShell=0; waitShell<10000000; waitShell++);
-
-                var timeLimitCheck = fs.readFileSync(`TLE.txt`, 'utf8');
-              
-                var TLE=true;
-                console.log('timeLimitCheck : '+timeLimitCheck);
-                console.log('timeLimitCheck[0] : '+timeLimitCheck[0]);
-                if (timeLimitCheck[0]!=='0'){
+                  var TLE = true;
+                  console.log('timeLimitCheck : ' + timeLimitCheck);
+                  console.log('timeLimitCheck[0] : ' + timeLimitCheck[0]);
+                  
+                  if (timeLimitCheck[0] !== '0') {
                     console.log('in if!!');
-                    TLE=false;
-                    break;
-                }
-
-                console.log("run : " + run);
-                console.log("TLE : " + TLE);
-                console.log("timeLimitCheck : " + timeLimitCheck);
-
-                //정답 파일을 읽어옵니다.
-                ans = fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
-                console.log("ans : " + ans);
-
-                //결과 파일을 읽어옵니다.
-                result = fs.readFileSync(`tmp.txt`, 'utf8')
-                console.log("result : " + result);
-                console.log("rltLeng : " + result.length);
-
-                //혹시 결과 파일 뒤에 개행이나 공백이 있으면 제거해줍니다.
-                var cut;
-                for (cut = result.length - 1; cut > 0; cut--) {
-                  console.log(cut);
-                  if (result[cut] != '\n' && result[cut] != ' ') {
+                    TLE = false;
                     break;
                   }
+
+                  console.log("run : " + run);
+                  console.log("TLE : " + TLE);
+                  console.log("timeLimitCheck : " + timeLimitCheck);
+
+                  //정답 파일을 읽어옵니다.
+                  ans = fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
+                  console.log("ans : " + ans);
+
+                  //결과 파일을 읽어옵니다.
+                  result = fs.readFileSync(`tmp.txt`, 'utf8')
+                  console.log("result : " + result);
+                  console.log("rltLeng : " + result.length);
+
+                  //혹시 결과 파일 뒤에 개행이나 공백이 있으면 제거해줍니다.
+                  var cut;
+                  for (cut = result.length - 1; cut > 0; cut--) {
+                    console.log(cut);
+                    if (result[cut] != '\n' && result[cut] != ' ') {
+                      break;
+                    }
+                  }
+                  result = result.substring(0, cut + 1);
+                  console.log("rltChg : " + result);
+
+                  if (ans === result) { //답이 맞으면 맞은 문제 수에 1씩 더합니다.
+                    correctAnswer++;
+                  }
+
+                } //for
+
+
+                console.log("correctAnswer = ", correctAnswer);
+                console.log("flies.length = ", files.length);
+                //테스트케이스의 수와 맞은 케이스의 수가 같으면 정답 처리를 합니다.
+                if (correctAnswer === files.length) {
+                  que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
+                  connection.query(que, function (err, result) {
+                    response.writeHead(302, {
+                      Location: `/result`
+                    });
+                    response.end('Correct!');
+                  });
+                } else if (TLE === false) {
+                  que = `UPDATE Solve SET result=3 where solve_id=${solve_id}`;
+                  connection.query(que, function (err, result) {
+                    response.writeHead(302, {
+                      Location: `/result`
+                    });
+                    response.end('TIME OVER!');
+                  });
+                  console.log("TLE : " + TLE);
+                  //여기에 시간초과 반환 코드 넣어주면 될꺼 같습니다. 
+                } else {
+                  que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
+                  connection.query(que, function (err, result) {
+                    response.writeHead(302, {
+                      Location: `/result`
+                    });
+                    response.end('NO? SINGO');
+                  });
                 }
-                result = result.substring(0, cut + 1);
-                console.log("rltChg : " + result);
-
-                if (ans === result) { //답이 맞으면 맞은 문제 수에 1씩 더합니다.
-                  correctAnswer++;
-                }
-
-              } //for
-
-
-              console.log("correctAnswer = ", correctAnswer);
-              console.log("flies.length = ", files.length);
-              //테스트케이스의 수와 맞은 케이스의 수가 같으면 정답 처리를 합니다.
-              if (correctAnswer === files.length) {
-                que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
-                connection.query(que, function (err, result) {
-                  response.writeHead(302, {
-                    Location: `/result`
-                  });
-                  response.end('Correct!');
-                });
-              } else if(TLE===false){
-                que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
-                connection.query(que, function (err, result) {
-                  response.writeHead(302, {
-                    Location: `/result`
-                  });
-                  response.end('NO? SINGO');
-                });
-                console.log("TLE : " + TLE);
-                //여기에 시간초과 반환 코드 넣어주면 될꺼 같습니다. 
-              } else {
-                que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
-                connection.query(que, function (err, result) {
-                  response.writeHead(302, {
-                    Location: `/result`
-                  });
-                  response.end('NO? SINGO');
-                });
-              }
-
-
+              });
             } else { // 컴파일에러
               que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
               connection.query(que, function (err, result) {
@@ -242,7 +230,7 @@ router.post('/submit_code', function (request, response) {
   } else {
     console.log("login error!");
     response.writeHead(302, {
-      Location: `/login?error=nologin`
+      Location: `/login?error=submit`
     });
     response.end();
   }

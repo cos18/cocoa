@@ -46,8 +46,10 @@ app.get('/login', function (request, response) {
   var body = "";
   if (request.query.error === 'true') {
     body = body + '<h4>Login Error! Check Id or password</h4>';
-  } else if (request.query.error === 'nologin') {
+  } else if (request.query.error === 'submit') {
     body = body + '<h4>You must login before submit</h4>';
+  } else if (request.query.error === 'mypage') {
+    body = body + '<h4>You must login to go to My page</h4>';
   }
   body = body + `
       <h3>Login Session</h3>
@@ -91,7 +93,7 @@ app.post('/login_process', function (request, response) {
 })
 
 // 로그아웃 처리 페이지
-app.get('/logout_process', function (request, response) {
+app.get('/logout', function (request, response) {
   // express 방식으로 바꿔야합니다
   response.writeHead(302, {
     'Set-Cookie': [
