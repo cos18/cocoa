@@ -154,7 +154,7 @@ app.get('/result', function (request, response) {
           ${list}
         </div>
       </div>
-      `, template.topbar(request, response));
+      `, template.topbar(request, response), "Result");
     response.send(html);
   });
 })

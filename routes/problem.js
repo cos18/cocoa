@@ -22,7 +22,7 @@ router.get('/', function (request, response) {
             <input type="button" onclick="window.location.href='/problem/create';" value="create" />
           </div>
         </div>
-        `, template.topbar(request, response));
+        `, template.topbar(request, response), "Board");
     response.send(html);
   });
 })
@@ -46,7 +46,7 @@ router.get('/create', function (request, response) {
           <p>Hint(shown in page) Number<input type="text" name="hint_num" style="margin-left:10px;" placeholder="number"></input></p>
           <input type="submit" value="create"></input>
         </form>
-      </div>`, template.topbar(request, response));
+      </div>`, template.topbar(request, response), "Board");
   response.send(html);
 })
 
@@ -132,16 +132,20 @@ router.post('/submit_code', function (request, response) {
                 //timeLimit/=1000; // ms -> s
                 timeLimit=1;
                 
-                var run = spawn('timeout', [`${timeLimit}s`, `./answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`], {
+                var run = spawn('timeout', [`${timeLimit}s`, `./answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`, ';', 'echo', '$?', '>', 'TLE.txt'], {
                   shell: true //답 비교를 위해 컴파일한 파일 실행
+<<<<<<< HEAD
                 });
 
-                for(var waitShell=0; waitShell<10000000; waitShell++);
+                //for(var waitShell=0; waitShell<10000000; waitShell++);
 
                 var run = spawn('echo', ['$?', '>', 'TLE.txt'], {
                   shell: true //echo
                 });
                 //console.log("echo : " + run);         
+=======
+                });       
+>>>>>>> 14758abb28f8b281e68171a68e64b57bb61c8974
 
                 for(var waitShell=0; waitShell<10000000; waitShell++);
 
