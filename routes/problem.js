@@ -177,6 +177,12 @@ router.post('/submit_code', function (request, response) {
                     correctAnswer++;
                   }
 
+                  var cleanTmp = spawn('>',['tmp.txt'], {
+                    shell: true //답 파일 지우기
+                  });
+
+                  for (var waitShell = 0; waitShell < 50000000; waitShell++);
+
                 } //for
 
 
