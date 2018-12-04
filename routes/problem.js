@@ -131,7 +131,7 @@ router.post('/submit_code', function (request, response) {
                 //해당 문제의 테스트케이스 만큼 반복합니다.
                 console.log("Time Limit : ", timeLimit);
                 for (var ioNum = 1; ioNum <= files.length; ioNum++) {
-                  var run = spawn('timeout', [`${timeLimit}s`, `./answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`, ';', 'echo', '$?', '>', 'TLE.txt'], {
+                  var run = spawn('sudo',['timeout', `${timeLimit}s`, `./answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`, ';', 'echo', '$?', '>', 'TLE.txt'], {
                     shell: true //답 비교를 위해 컴파일한 파일 실행
                   });
 
