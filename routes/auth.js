@@ -8,6 +8,7 @@ module.exports = function(passport){
     // 로그인페이지
     router.get('/login', function (request, response) {
       var body = "";
+      queryStatus=""
       if (request.query.error === 'true') {
         queryStatus = '<h4>Login Error! Check Id or password</h4>';
       } else if (request.query.error === 'submit') {
