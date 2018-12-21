@@ -10,8 +10,6 @@ var exec=require('child_process').exec;
 var execFile=require('child_process').execFile;
 
 var connection = mysql_con.init();
-
-
 // 확인해본 결과 writefile, readfile, mkdir 등등 함수에서 파일 위치를 쓸 때는 '../', './', '/' 말고 그냥 바로 '주소'로 들어가도 되고 이게 안 헷갈릴 것 같습니다.
 
 // 문제게시판 페이지
@@ -102,11 +100,9 @@ router.post('/submit_code', function (request, response) {
     var problemNumber = post.problemNumber;
     var submitCode = post.submitCode;
 
-    var cookies = auth.getCookies(request);
-
-    var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${cookies.id}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
+    var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${request.user.id}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
     connection.query(que, function (err, result) {
-      que = `select * FROM Solve where solve_member=${cookies.id} ORDER BY solve_id DESC LIMIT 1;`
+      que = `select * FROM Solve where solve_member=${request.user.id} ORDER BY solve_id DESC LIMIT 1;`
       connection.query(que, function (err, result) {
         solve_id = result[0].solve_id;
         fs.writeFile(`answer_comparing/submit_codes/${solve_id}.c`, submitCode, 'utf8', function (err) {
