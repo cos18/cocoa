@@ -25,6 +25,7 @@ router.get('/', function(request, response){
             <div class="content">
               <div class="header">
                 <div>별명</div><br>
+                <div>공부상태(레벨)</div><br>
                 <div>상태메세지</div><br>
                 <div>소속그룹</div>  
               </div>
