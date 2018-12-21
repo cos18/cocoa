@@ -8,9 +8,6 @@ var session = require('express-session');
 var FileStore = require('session-file-store')(session)   // cocoa에서 쓸때는 file말고 db등등으로 옮기는 법을 알아내서 적용시켜야함.
 //var FileStore = require('session-file-store')(session)   // cocoa에서 쓸때는 file말고 db등등으로 옮기는 법을 알아내서 적용시켜야함.
 
-var http = require('http');
-var qs = require('querystring');
-var path = require('path');
 
 var template = require('./lib/template.js');
 var func = require('./lib/function.js');
