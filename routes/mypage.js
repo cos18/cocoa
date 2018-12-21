@@ -11,7 +11,31 @@ var connection = mysql_con.init();
 router.get('/', function(request, response){
     if (auth.isOwner(request, response)){
       // 이부분을 수정하던, 템플릿을 수정하던 해서 왼쪽에 세부 메뉴를 띄우고 가운데 창에 다른 정보 표시하기
-      var html = template.mypage("프로필", '프로필 페이지', template.topbar(request, response, "My page"));
+      var profilePage = `
+      <br><br>
+
+      <div class="eight wide column">
+        <div class="ui three doubling stackable cards">
+          <div class="ui card">
+            <div class="image">
+              <div class="ui placeholder">
+                <div class="square image"></div>
+              </div>
+            </div>
+            <div class="content">
+              <div class="header">
+                <div>별명</div><br>
+                <div>상태메세지</div><br>
+                <div>소속그룹</div>  
+              </div>
+            </div>
+            <div class="extra content">
+            </div>
+          </div>
+        </div>
+      </div>
+      `
+      var html = template.mypage("프로필", profilePage, template.topbar(request, response, "My page"));
       response.send(html);
     }
     else {
@@ -106,7 +130,49 @@ router.get('/notification', function(request, response){
 // 개인정보 수정 페이지
 router.get('/info', function(request, response){
   if(auth.isOwner(request, response)){
-    var html = template.mypage("개인정보 수정", '개인정보 수정 페이지', template.topbar(request, response, "My page"));
+    var changeInfo = `
+    <div class="eight wide column">
+      <div class="ui input">
+        <input type="text" placeholder="Nickname to change">
+      </div>
+      <div class="ui left pointing label">
+        변경할 별명을 입력해주세요!
+      </div>
+
+      <br><br><div class="ui divider"></div><br>
+
+      <div class="ui input">
+        <input type="text" placeholder="Password to change">
+      </div>
+      <div class="ui left pointing label">
+        변경할 비밀번호를 입력해주세요!
+      </div>
+
+      <br><br><div class="ui divider"></div><br>
+
+      <div class="ui input">
+        <input type="text" placeholder="Confirm password to change">
+      </div>
+      <div class="ui left pointing label">
+        변경할 비밀번호를 한번 더 입력해주세요!
+      </div>
+
+      <br><br><div class="ui divider"></div><br>
+
+      <div class="ui input">
+        <input type="text" placeholder="Status Message to change">
+      </div>
+      <div class="ui left pointing label">
+        변경할 상태메세지를 입력해주세요!
+      </div>
+
+      <br><br><br><br>
+      <button class="ui primary button">
+        정보 수정!
+      </button>
+    </div>
+    `
+    var html = template.mypage("개인정보 수정", changeInfo, template.topbar(request, response, "My page"));
     response.send(html);
   } else {
     console.log("login error!");
