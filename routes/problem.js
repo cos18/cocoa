@@ -5,8 +5,12 @@ var template = require('../lib/template.js');
 var mysql_con = require('../db/db_con.js')();
 var auth = require('../lib/auth.js');
 var spawn = require('child_process').spawn;
+var spawnSync = require('child_process').spawnSync;
+var exec=require('child_process').exec;
+var execFile=require('child_process').execFile;
 
 var connection = mysql_con.init();
+
 
 // 확인해본 결과 writefile, readfile, mkdir 등등 함수에서 파일 위치를 쓸 때는 '../', './', '/' 말고 그냥 바로 '주소'로 들어가도 되고 이게 안 헷갈릴 것 같습니다.
 
@@ -122,67 +126,80 @@ router.post('/submit_code', function (request, response) {
           compile.on('exit', function (data) {
             var files = fs.readdirSync(`problem/${problemNumber}/input`);
             var correctAnswer = 0;
+            var MAX_BUFFER=1024;//1 KB
             console.log(files);
             if (data === 0) {
               que = `select * FROM Problem where pb_id=${problemNumber};`;
               connection.query(que, function (err, result) {
                 let timeLimit = result[0].lim_time;
-                timeLimit /= 1000;
+                //timeLimit /= 1000;
                 //해당 문제의 테스트케이스 만큼 반복합니다.
                 console.log("Time Limit : ", timeLimit);
                 for (var ioNum = 1; ioNum <= files.length; ioNum++) {
-                  var run = spawn('timeout',[`${timeLimit}s`, `./answer_comparing/convertToExe/${solve_id}.exe`, '<', `problem/${problemNumber}/input/${ioNum}.txt`, '>', `tmp.txt`, ';', 'echo', '$?', '>', 'TLE.txt'], {
-                    shell: true //답 비교를 위해 컴파일한 파일 실행
-                  });
 
-                  for (var waitShell = 0; waitShell < 50000000; waitShell++);
-
-                  var timeLimitCheck = fs.readFileSync(`TLE.txt`, 'utf8');
-
-                  var TLE = true;
-                  console.log('timeLimitCheck : ' + timeLimitCheck);
-                  console.log('timeLimitCheck[0] : ' + timeLimitCheck[0]);
+                  var INPUT=fs.readFileSync(`problem/${problemNumber}/input/${ioNum}.txt`);
+                  //INPUT=cutNewline(INPUT);
                   
-                  if (timeLimitCheck[0] !== '0') {
-                    console.log('in if!!');
-                    TLE = false;
+                  var run = spawnSync( `./answer_comparing/convertToExe/${solve_id}.exe`, {
+                    shell:true, timeout: timeLimit, maxBuffer: MAX_BUFFER, input: INPUT   //답 비교를 위해 컴파일한 파일 실행
+                  }); //비동기 함수로 만들었을때 command 또는 File 부분을 읽지 못함
+                      //무조건 비동기 함수로 만들어야 무한루프문제 해결할듯
+                  
+                  for (var waitShell = 0; waitShell < 50000000; waitShell++);
+                  
+                  
+                  
+                  if(run.error =="Error: spawnSync /bin/sh ENOBUFS"){
+                    console.log("BUF!");
+                    //kill process
+                    //run.stdin.end();
+                    //run.kill();
+                    break;
+                  }
+                  
+
+                  console.log("run.error :"+ run.error);
+                  console.log("run.output :"+run.output);
+                  //console.log("run.pid :"+ run.pid);
+                  //console.log("run.signal :"+ run.signal);
+                  //console.log("run.status :"+ run.status);
+                  console.log("run.stderr :"+ run.stderr);
+                  console.log("run.stdout :"+ run.stdout);
+                  
+                  //for (var waitShell = 0; waitShell < 50000000; waitShell++);
+                  
+                  //var timeLimitCheck = fs.readFileSync(`TLE.txt`, 'utf8');
+                  var TLE = true;
+                  if(run.error =="Error: spawnSync /bin/sh ETIMEDOUT"){
+                    TLE=false;
+                    console.log("TLE == FALSE");
+                    //run.stdin.pause();
+                    //run.kill();
                     break;
                   }
 
-                  console.log("run : " + run);
+                  //console.log("run : " + run);
                   console.log("TLE : " + TLE);
-                  console.log("timeLimitCheck : " + timeLimitCheck);
+                  //console.log("timeLimitCheck : " + timeLimitCheck);
 
                   //정답 파일을 읽어옵니다.
                   ans = fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
                   console.log("ans : " + ans);
 
                   //결과 파일을 읽어옵니다.
-                  result = fs.readFileSync(`tmp.txt`, 'utf8')
+                  if(run.error === undefined){
+                    result=run.stdout;
+                  }
+                  //result=cutNewline(result);
                   console.log("result : " + result);
-                  console.log("rltLeng : " + result.length);
+                 // console.log("rltLeng : " + result.length);
 
-                  //혹시 결과 파일 뒤에 개행이나 공백이 있으면 제거해줍니다.
-                  var cut;
-                  for (cut = result.length - 1; cut > 0; cut--) {
-                    console.log(cut);
-                    if (result[cut] != '\n' && result[cut] != ' ') {
-                      break;
-                    }
+                
+
+                  if (ans == result) { //답이 맞으면 맞은 문제 수에 1씩 더합니다.
+                  correctAnswer++;
                   }
-                  result = result.substring(0, cut + 1);
-                  console.log("rltChg : " + result);
-
-                  if (ans === result) { //답이 맞으면 맞은 문제 수에 1씩 더합니다.
-                    correctAnswer++;
-                  }
-
-                  var cleanTmp = spawn('>',['tmp.txt'], {
-                    shell: true //답 파일 지우기
-                  });
-
-                  for (var waitShell = 0; waitShell < 50000000; waitShell++);
-
+                  console.log();
                 } //for
 
 
