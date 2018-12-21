@@ -7,26 +7,102 @@ var func = require('../lib/function.js');
 module.exports = function(passport){
     // 로그인페이지
     router.get('/login', function (request, response) {
-    var body = "";
-    if (request.query.error === 'true') {
-      body = body + '<h4>Login Error! Check Id or password</h4>';
-    } else if (request.query.error === 'submit') {
-      body = body + '<h4>You must login before submit</h4>';
-    } else if (request.query.error === 'mypage') {
-      body = body + '<h4>You must login to go to My page</h4>';
-    }
-    body = body + `
-        <h3>Login Session</h3>
-        <form action="/auth/login_process" method="post">
-          <p>ID <input type="text" name="ID" placeholder="ID"></p>
-          <p>PW <input type="password" name="pwd" maxlength=14 placeholder="password"></p>
-          <p>
-            <input type="submit" value=LOGIN>
-          </p>
-        </form>
-      `;
-    var html = template.HTML(body, template.topbar(request, response));
-    response.send(html);
+      var body = "";
+      if (request.query.error === 'true') {
+        queryStatus = '<h4>Login Error! Check Id or password</h4>';
+      } else if (request.query.error === 'submit') {
+        queryStatus =  '<h4>You must login before submit</h4>';
+      } else if (request.query.error === 'mypage') {
+        queryStatus =  '<h4>You must login to go to My page</h4>';
+      }
+      body = body + `
+          <style type="text/css">
+            body > .grid {
+              height: 100%;
+            }
+            .image {
+              margin-top: -100px;
+            }
+            .column {
+              max-width: 450px;
+            }
+          </style>
+    
+          <script>
+          $(document)
+            .ready(function() {
+              $('.ui.form')
+                .form({
+                  fields: {
+                    email: {
+                      identifier  : 'email',
+                      rules: [
+                        {
+                          type   : 'empty',
+                          prompt : 'Please enter your e-mail'
+                        },
+                        {
+                          type   : 'email',
+                          prompt : 'Please enter a valid e-mail'
+                        }
+                      ]
+                    },
+                    password: {
+                      identifier  : 'password',
+                      rules: [
+                        {
+                          type   : 'empty',
+                          prompt : 'Please enter your password'
+                        },
+                        {
+                          type   : 'length[6]',
+                          prompt : 'Your password must be at least 6 characters'
+                        }
+                      ]
+                    }
+                  }
+                })
+              ;
+            })
+          ;
+          </script>
+    
+          <body>
+          <div class="ui middle aligned center aligned grid">
+            <div class="column">
+              <h2>
+                <div class="content">
+                  COCOA에 로그인하세요!
+                </div>
+              </h2>
+              <form class="ui large form" action="/login_process" method="post">
+                <div class="ui stacked segment">
+                  <div class="field">
+                    <div class="ui left icon input">
+                      <i class="user icon"></i>
+                      <input type="text" name="ID" placeholder="E-mail address">
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="ui left icon input">
+                      <i class="lock icon"></i>
+                      <input type="password" name="pwd" maxlength=14 placeholder="Password">
+                    </div>
+                  </div>
+                  <div class="ui fluid large teal submit button" value=LOGIN>로그인</div>
+                </div>
+    
+                <div class="ui error message"></div>
+    
+              </form>
+              <div>${queryStatus}</div>
+            </div>
+          </div>
+    
+          </body>
+        `;
+      var html = template.HTML(body, template.topbar(request, response));
+      response.send(html);
   });
   
   // 로그인처리 페이지
