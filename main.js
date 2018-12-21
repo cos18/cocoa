@@ -45,11 +45,11 @@ app.get('/', function (request, response) {
 app.get('/login', function (request, response) {
   var body = "";
   if (request.query.error === 'true') {
-    body = body + '<h4>Login Error! Check Id or password</h4>';
+    queryStatus = '<h4>Login Error! Check Id or password</h4>';
   } else if (request.query.error === 'submit') {
-    body = body + '<h4>You must login before submit</h4>';
+    queryStatus =  '<h4>You must login before submit</h4>';
   } else if (request.query.error === 'mypage') {
-    body = body + '<h4>You must login to go to My page</h4>';
+    queryStatus =  '<h4>You must login to go to My page</h4>';
   }
   body = body + `
       <style type="text/css">
@@ -63,6 +63,45 @@ app.get('/login', function (request, response) {
           max-width: 450px;
         }
       </style>
+
+      <script>
+      $(document)
+        .ready(function() {
+          $('.ui.form')
+            .form({
+              fields: {
+                email: {
+                  identifier  : 'email',
+                  rules: [
+                    {
+                      type   : 'empty',
+                      prompt : 'Please enter your e-mail'
+                    },
+                    {
+                      type   : 'email',
+                      prompt : 'Please enter a valid e-mail'
+                    }
+                  ]
+                },
+                password: {
+                  identifier  : 'password',
+                  rules: [
+                    {
+                      type   : 'empty',
+                      prompt : 'Please enter your password'
+                    },
+                    {
+                      type   : 'length[6]',
+                      prompt : 'Your password must be at least 6 characters'
+                    }
+                  ]
+                }
+              }
+            })
+          ;
+        })
+      ;
+      </script>
 
       <body>
       <div class="ui middle aligned center aligned grid">
@@ -92,6 +131,7 @@ app.get('/login', function (request, response) {
             <div class="ui error message"></div>
 
           </form>
+          <div>${queryStatus}</div>
         </div>
       </div>
 
