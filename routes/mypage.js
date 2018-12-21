@@ -41,7 +41,7 @@ router.get('/', function(request, response){
     else {
       console.log("login error!");
       response.writeHead(302, {
-        Location: `/login?error=mypage`
+        Location: `/auth/login?error=mypage`
       });
       response.end();
     }
@@ -58,7 +58,7 @@ router.get('/result', function(request, response){
   } else {
     console.log("login error!");
       response.writeHead(302, {
-        Location: `/login?error=nologin`
+        Location: `/auth/login?error=nologin` 
       });
       response.end();
   }
@@ -100,7 +100,7 @@ router.get('/result/:solve_id', function(request, response){
   } else {
     console.log("login error!");
       response.writeHead(302, {
-        Location: `/login?error=nologin`
+        Location: `/auth/login?error=nologin`
       });
       response.end();
   }
@@ -114,7 +114,7 @@ router.get('/recommend', function(request, response){
   } else {
     console.log("login error!");
       response.writeHead(302, {
-        Location: `/login?error=nologin`
+        Location: `/auth/login?error=nologin`
       });
       response.end();
   }
@@ -128,7 +128,7 @@ router.get('/notification', function(request, response){
   } else {
     console.log("login error!");
       response.writeHead(302, {
-        Location: `/login?error=nologin`
+        Location: `/auth/login?error=nologin`
       });
       response.end();
   }
@@ -184,7 +184,7 @@ router.get('/info', function(request, response){
   } else {
     console.log("login error!");
       response.writeHead(302, {
-        Location: `/login?error=nologin`
+        Location: `/auth/login?error=nologin`
       });
       response.end();
   }
