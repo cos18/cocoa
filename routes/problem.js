@@ -208,37 +208,25 @@ router.post('/submit_code', function (request, response) {
                 //테스트케이스의 수와 맞은 케이스의 수가 같으면 정답 처리를 합니다.
                 if (correctAnswer === files.length) {
                   que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
-                  connection.query(que, function (err, result) {
-                    response.writeHead(302, {
-                      Location: `/result`
-                    });
-                    response.end('Correct!');
-                  });
                 } else if (TLE === false) {
                   que = `UPDATE Solve SET result=3 where solve_id=${solve_id}`;
-                  connection.query(que, function (err, result) {
-                    response.writeHead(302, {
-                      Location: `/result`
-                    });
-                    response.end('TIME OVER!');
-                  });
                   console.log("TLE : " + TLE);
                   //여기에 시간초과 반환 코드 넣어주면 될꺼 같습니다. 
                 } else {
                   que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
-                  connection.query(que, function (err, result) {
-                    response.writeHead(302, {
-                      Location: `/result`
-                    });
-                    response.end('NO? SINGO');
-                  });
                 }
+                connection.query(que, function (err, result) {
+                  response.writeHead(302, {
+                    Location: `/mypage/result/${solve_id}`
+                  });
+                  response.end('Three different Result');
+                });
               });
             } else { // 컴파일에러
               que = `UPDATE Solve SET result=1 where solve_id=${solve_id}`;
               connection.query(que, function (err, result) {
                 response.writeHead(302, {
-                  Location: `/result`
+                  Location: `/mypage/result/${solve_id}`
                 });
                 response.end('Compile ERROR!!');
               });
@@ -261,7 +249,7 @@ router.post('/submit_code', function (request, response) {
 
 // 개별문제 페이지
 router.get('/:problem_id', function (request, response) {
-  console.log(request.params.problem_id);
+  //console.log(request.params.problem_id);
   var pb_id = request.params.problem_id;
   if (pb_id === undefined)
     response.status(404).send('잘못된 접근입니다');

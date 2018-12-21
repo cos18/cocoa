@@ -64,3 +64,5 @@ typings/
 *.exe
 answer_comparing/submit_codes
 answer_comparing/convertToExe
+
+package-lock.json
