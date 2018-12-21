@@ -69,13 +69,18 @@ router.get('/result/:solve_id', function(request, response){
   if(auth.isOwner(request, response)){
     let html = "";
     let errorHtml = `
-    <h3 class="ui center aligned icon header">
+    <h1 class="ui center aligned icon header">
       <i class="exclamation triangle icon"></i>
       이런! 문제가 발생했습니다!
-    </h3>
-    <button class="ui button" onclick="location.href='/mypage/result'">
-      목록으로 돌아가기
-    </button>
+      <div class="sub header">
+        없는 체점 번호으로 들어왔거나, 다른 사람의 채점 결과로 들어왔습니다.
+        <br><br>
+        <button class="ui button" onclick="location.href='/mypage/result'">
+          목록으로 돌아가기
+        </button>
+      </div>
+    </h1>
+    
     `;
     let solve_id = request.params.solve_id;
     let stmt = `select * from Solve where solve_id=${solve_id}`;
