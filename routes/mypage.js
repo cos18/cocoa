@@ -58,7 +58,7 @@ router.get('/result', function(request, response){
   } else {
     console.log("login error!");
       response.writeHead(302, {
-        Location: `/auth/login?error=nologin`
+        Location: `/auth/login?error=nologin` 
       });
       response.end();
   }
