@@ -26,7 +26,7 @@ router.get('/', function(request, response){
 // 채점 결과 메인 페이지 
 router.get('/result', function(request, response){
   if(auth.isOwner(request, response)){
-    let stmt = `select * from Solve where solve_member=${auth.getMemberId(request, response)}`;
+    let stmt = `select * from Solve where solve_member=${auth.getMemberId(request, response)} ORDER BY solve_id DESC LIMIT 10;`;
     connection.query(stmt, function (err, result) {
       var html = template.mypage("채점 결과", template.result_list(result), template.topbar(request, response, "My page"));
       response.send(html);
