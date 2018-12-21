@@ -133,22 +133,52 @@ module.exports = function(passport){
     var html = template.HTML(`
       <script>${check}</script>
       <h3>Join Session</h3>
-      <form method="post" id="join" action="/auth/join_process" onsubmit="return checkForm(this);">
-        <p>ID <input type="email" name="ID" placeholder="Email"></p>
-        <p>PW <input type="password" name="pwd" minlength=8 maxlength=14 placeholder="8~14 letters"></p>
-        <p>CHKPW <input type="password" name="chkpwd" minlength=8 maxlength=14 placeholder="8~14 letters"></p>
-        <p>Name <input type="text" name="username" placeholder="name"></p>
-        <p>Nickname <input type="text" name="nickname" maxlength=10 placeholder="max 16"></p>
-        <p>Work at <input type="text" name="belong" placeholder="Belong"></p>
-        <p>Group</p>
-          <fieldset>
-            <span><input type="radio" name="group" value="2" checked/>Student</span>
-            <span><input type="radio" name="group" value="1" />Professor</span>
-            <span><input type="radio" name="group" value="3" />Other</span>
-          </fieldset>
-        <p>
-          <input type="submit" value="JOIN">
-        </p>
+  
+  
+      <form method="post" class="ui form" action="/join_process" onsubmit="return checkForm(this);">
+        <div class="field">
+          <label>아이디</label>
+          <input type="email" name="ID" placeholder="Email">
+        </div>
+        <div class="field">
+          <label>비밀번호</label>
+          <input type="password" name="pwd" minlength=8 maxlength=14 placeholder="8~14 letters">
+        </div>
+        <div class="field">
+          <label>비밀번호 확인</label>
+          <input type="password" name="chkpwd" minlength=8 maxlength=14 placeholder="8~14 letters">
+        </div>
+        <div class="field">
+          <label>이름</label>
+          <input type="text" name="username" placeholder="name">
+        </div>
+        <div class="field">
+          <label>별명</label>
+          <input type="text" name="nickname" maxlength=10 placeholder="max 16">
+        </div>
+        <div class="field">
+          <label>직장/학교</label>
+          <input type="text" name="belong" placeholder="Belong">
+        </div>
+  
+        <div class="field">
+          <label>그룹</label>
+          <div class="ui selection dropdown">
+            <input type="hidden" name="group">
+            <i class="dropdown icon"></i>
+            <div class="default text">자신이 속한 곳을 골라주세요!</div>
+            <div class="menu">
+              <div class="item" data-value="2">학생</div>
+              <div class="item" data-value="1">교수</div>
+              <div class="item" data-value="3">일반</div>
+            </div>
+          </div>
+          <script>
+            $('.ui.selection.dropdown').dropdown();
+          </script> 
+        </div>
+        <br>
+        <button class="ui primary button" type="submit" value="JOIN">가입</button>
       </form>
       `, template.topbar(request, response));
     // 현재 아이디는 email 형식으로, 비번은 영문자, 숫자 포함 최소 8지 입력하게 해놓음
