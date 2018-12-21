@@ -145,19 +145,24 @@ router.post('/submit_code', function (request, response) {
                   }); //비동기 함수로 만들었을때 command 또는 File 부분을 읽지 못함
                       //무조건 비동기 함수로 만들어야 무한루프문제 해결할듯
                   
-                  for (var waitShell = 0; waitShell < 50000000; waitShell++);
+                  //for (var waitShell = 0; waitShell < 50000000; waitShell++);
                   
-                  
+                  var OLE=true;
+                  var TLE = true;
                   
                   if(run.error =="Error: spawnSync /bin/sh ENOBUFS"){
-                    console.log("BUF!");
-                    //kill process
-                    //run.stdin.end();
-                    //run.kill();
+                    OLE = false;
+                    console.log("OLE!");
+                    break;
+                  }
+
+                  if(run.error =="Error: spawnSync /bin/sh ETIMEDOUT"){
+                    TLE=false;
+                    console.log("TLE == FALSE");
                     break;
                   }
                   
-
+/*
                   console.log("run.error :"+ run.error);
                   console.log("run.output :"+run.output);
                   //console.log("run.pid :"+ run.pid);
@@ -165,19 +170,7 @@ router.post('/submit_code', function (request, response) {
                   //console.log("run.status :"+ run.status);
                   console.log("run.stderr :"+ run.stderr);
                   console.log("run.stdout :"+ run.stdout);
-                  
-                  //for (var waitShell = 0; waitShell < 50000000; waitShell++);
-                  
-                  //var timeLimitCheck = fs.readFileSync(`TLE.txt`, 'utf8');
-                  var TLE = true;
-                  if(run.error =="Error: spawnSync /bin/sh ETIMEDOUT"){
-                    TLE=false;
-                    console.log("TLE == FALSE");
-                    //run.stdin.pause();
-                    //run.kill();
-                    break;
-                  }
-
+*/
                   //console.log("run : " + run);
                   console.log("TLE : " + TLE);
                   //console.log("timeLimitCheck : " + timeLimitCheck);
@@ -210,8 +203,8 @@ router.post('/submit_code', function (request, response) {
                   que = `UPDATE Solve SET result=0 where solve_id=${solve_id}`;
                 } else if (TLE === false) {
                   que = `UPDATE Solve SET result=3 where solve_id=${solve_id}`;
-                  console.log("TLE : " + TLE);
-                  //여기에 시간초과 반환 코드 넣어주면 될꺼 같습니다. 
+                } else if (OLE === false) {
+                  que = `UPDATE Solve SET result=4 where solve_id=${solve_id}`;
                 } else {
                   que = `UPDATE Solve SET result=2 where solve_id=${solve_id}`;
                 }
