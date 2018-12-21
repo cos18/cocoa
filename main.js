@@ -52,14 +52,50 @@ app.get('/login', function (request, response) {
     body = body + '<h4>You must login to go to My page</h4>';
   }
   body = body + `
-      <h3>Login Session</h3>
-      <form action="/login_process" method="post">
-        <p>ID <input type="text" name="ID" placeholder="ID"></p>
-        <p>PW <input type="password" name="pwd" maxlength=14 placeholder="password"></p>
-        <p>
-          <input type="submit" value=LOGIN>
-        </p>
-      </form>
+      <style type="text/css">
+        body > .grid {
+          height: 100%;
+        }
+        .image {
+          margin-top: -100px;
+        }
+        .column {
+          max-width: 450px;
+        }
+      </style>
+
+      <body>
+      <div class="ui middle aligned center aligned grid">
+        <div class="column">
+          <h2>
+            <div class="content">
+              COCOA에 로그인하세요!
+            </div>
+          </h2>
+          <form class="ui large form" action="/login_process" method="post">
+            <div class="ui stacked segment">
+              <div class="field">
+                <div class="ui left icon input">
+                  <i class="user icon"></i>
+                  <input type="text" name="ID" placeholder="E-mail address">
+                </div>
+              </div>
+              <div class="field">
+                <div class="ui left icon input">
+                  <i class="lock icon"></i>
+                  <input type="password" name="pwd" maxlength=14 placeholder="Password">
+                </div>
+              </div>
+              <div class="ui fluid large teal submit button" value=LOGIN>로그인</div>
+            </div>
+
+            <div class="ui error message"></div>
+
+          </form>
+        </div>
+      </div>
+
+      </body>
     `;
   var html = template.HTML(body, template.topbar(request, response));
   response.send(html);
