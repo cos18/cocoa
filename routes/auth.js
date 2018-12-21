@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var template = require('../lib/template.js');
 var sanitizeHtml = require('sanitize-html');
+var func = require('../lib/function.js');
 
 module.exports = function(passport){
     // 로그인페이지
