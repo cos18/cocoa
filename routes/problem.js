@@ -253,7 +253,7 @@ router.get('/:problem_id', function (request, response) {
           fs.readFile(`problem/${pb_id}/input/1.txt`, 'utf8', function (err, input) {
             fs.readFile(`problem/${pb_id}/output/1.txt`, 'utf8', function (err, output) {
               var html = template.show_problem(result.pb_id, result.lim_time, result.lim_mem, result.title, info, input, output, template.topbar(request, response));
-              response.end(html);
+              response.send(html);
             });
           });
         });
