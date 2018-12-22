@@ -200,7 +200,7 @@ router.post('/submit_code', function (request, response) {
                       }
                     }
                     
-                    tmp = tmp.subarray(0, cut);
+                    tmp = tmp.subarray(0, cut+1);
                     console.log("rltChg : " + tmp);
 
                     result = tmp;
