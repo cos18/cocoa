@@ -57,8 +57,8 @@ router.post('/create_process', function (request, response) {
   var post = request.body; // parse를 통해 객체화 시켜서, post에 우리가 submit으로 제출한 POST의 내용이 담겨있을거다.
   var find_que = 'SELECT * FROM Problem ORDER BY pb_id DESC LIMIT 1;';
   connection.query(find_que, function (err, result) {
-    console.log(result);
     var pb_id = parseInt(result[0].pb_id) + 1;
+    //console.log(result);
     var que = `INSERT INTO Problem (pb_id, title, lim_time, lim_mem, hint_num) VALUES(${pb_id}, "${post.pb_title}", ${post.lim_time}, ${post.lim_mem}, ${post.hint_num});`;
     connection.query(que, function (err, result) {
       // 지금 여기 pb_title 대신에, DB에서 자동생성한 문제번호(pb_id)를 가져와야 할 것 같아요
@@ -163,10 +163,10 @@ router.post('/submit_code', function (request, response) {
                   console.log("run.output :"+run.output);
                   //console.log("run.pid :"+ run.pid);
                   //console.log("run.signal :"+ run.signal);
-                  //console.log("run.status :"+ run.status);
+                  //console.log("run.status :"+ run.status);*/
                   console.log("run.stderr :"+ run.stderr);
                   console.log("run.stdout :"+ run.stdout);
-*/
+
                   //console.log("run : " + run);
                   console.log("TLE : " + TLE);
                   //console.log("timeLimitCheck : " + timeLimitCheck);
