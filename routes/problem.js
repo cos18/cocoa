@@ -99,10 +99,10 @@ router.post('/submit_code', function (request, response) {
     var post = request.body;
     var problemNumber = post.problemNumber;
     var submitCode = post.submitCode;
-
-    var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${request.user.id}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
+    var memberid = auth.getMemberId(request, response);
+    var que = `insert into Solve (solve_member, solve_problem, result, solve_sec, solve_mem, solve_len, solve_lang) VALUES(${memberid}, ${problemNumber}, -1, 0, 0, ${submitCode.length}, 1);`;
     connection.query(que, function (err, result) {
-      que = `select * FROM Solve where solve_member=${request.user.id} ORDER BY solve_id DESC LIMIT 1;`
+      que = `select * FROM Solve where solve_member=${memberid} ORDER BY solve_id DESC LIMIT 1;`
       connection.query(que, function (err, result) {
         solve_id = result[0].solve_id;
         fs.writeFile(`answer_comparing/submit_codes/${solve_id}.c`, submitCode, 'utf8', function (err) {
@@ -230,7 +230,7 @@ router.post('/submit_code', function (request, response) {
   } else {
     console.log("login error!");
     response.writeHead(302, {
-      Location: `/login?error=submit`
+      Location: `/auth/login?error=submit`
     });
     response.end();
   }
