@@ -174,19 +174,52 @@ router.post('/submit_code', function (request, response) {
                   //정답 파일을 읽어옵니다.
                   ans = fs.readFileSync(`problem/${problemNumber}/output/${ioNum}.txt`, 'utf8')
                   console.log("ans : " + ans);
+                 
+                  /*
+                  var cut;
+                  for (cut = result.length - 1; cut > 0; cut--) {
+                    console.log(cut);
+                    if (result[cut] != '\n' && result[cut] != ' ') {
+                      break;
+                    }
+                  }
+                  result = result.substring(0, cut + 1);
+                  console.log("rltChg : " + result);*/
+                  
 
                   //결과 파일을 읽어옵니다.
+                  
                   if(run.error === undefined){
-                    result=run.stdout;
+                    fs.writeFileSync('tmp.txt',run.stdout);
+                    var tmp = fs.readFileSync('tmp.txt');
+                    var cut;
+                    for (cut = tmp.length - 1; cut > 0; cut--) {
+                      console.log(cut);
+                      if (tmp[cut] != '\n' && tmp[cut] != ' ') {
+                        break;
+                      }
+                    }
+                    
+                    tmp = tmp.subarray(0, cut);
+                    console.log("rltChg : " + tmp);
+
+                    result = tmp;
+                    
+
+                    //result=run.stdout;
                   }
+                  
                   //result=cutNewline(result);
+                  
                   console.log("result : " + result);
+                  
+                  
                  // console.log("rltLeng : " + result.length);
 
                 
 
                   if (ans == result) { //답이 맞으면 맞은 문제 수에 1씩 더합니다.
-                  correctAnswer++;
+                    correctAnswer++;
                   }
                   console.log();
                 } //for
