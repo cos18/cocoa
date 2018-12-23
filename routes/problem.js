@@ -194,14 +194,21 @@ router.post('/submit_code', function (request, response) {
                     var tmp = fs.readFileSync('tmp.txt');
                     var cut;
                     for (cut = tmp.length - 1; cut > 0; cut--) {
-                      console.log(cut);
-                      if (tmp[cut] != '\n' && tmp[cut] != ' ') {
+                      console.log("cut:",cut);
+                      if (tmp[cut] === 10 || tmp[cut] === 32){ // 10이 \n 32가 공백인듯 싶네요...
+                        console.log("line or space");
+                        console.log(`tmp[${cut}] : `,tmp[cut]);
+                        continue;
+                      }
+                      else {
+                        console.log(`tmp[${cut}] : `,tmp[cut]);
+                        console.log("not line nor space");
                         break;
                       }
                     }
                     
                     tmp = tmp.subarray(0, cut+1);
-                    console.log("rltChg : " + tmp);
+                    console.log("cutted stdout : " + tmp);
 
                     result = tmp;
                     
