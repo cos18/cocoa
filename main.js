@@ -18,6 +18,7 @@ var passport = require('./lib/passport')(app);  // passport를 passportjs에서 
 var problemRouter = require('./routes/problem'); // 문제관련 페이지
 var mypageRouter = require('./routes/mypage');
 var authRouter = require('./routes/auth')(passport);
+var groupRouter = require('./routes/group');
 
 var connection = mysql_con.init();
 
@@ -39,6 +40,7 @@ app.use(session({             // 세션 관련
 app.use('/problem', problemRouter); // /problem으로 들어가는 경로는 problemRouter 미들웨어에서 처리
 app.use('/mypage', mypageRouter);
 app.use('/auth', authRouter);
+app.use('/group',groupRouter);
 
 // 메인페이지
 app.get('/', function (request, response) {
