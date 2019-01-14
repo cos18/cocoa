@@ -5,7 +5,7 @@ $(document).ready(function(){
     lineNumbers : true,
     mode : "text/x-csrc",
     extraKeys : {"Ctrl-Space" : "autocomplete"},
-    indentUnit : 0,
+    indentUnit : 4,
     autoCloseBrackets : true
   });
 });
