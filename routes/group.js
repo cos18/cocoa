@@ -50,7 +50,7 @@ router.get('/createGroup', function (request, response) {
   */
   var createGroupTemplate =
     `
-    <form method="post" class="ui form" action="/group/group_process" onsubmit="">
+    <form method="post" class="ui form" action="/group/createGroupProcess">
       <div class="field">
         <label>그룹 이름</label>
         <input type="text" name="groupname" placeholder="그룹명">
@@ -59,13 +59,6 @@ router.get('/createGroup', function (request, response) {
         <label>공개 여부</label>
         <input type="checkbox" name="groupopen">
       </div>
-      <div class="field">
-        <label>그룹장</label>
-        <input type="text" name="groupleader" placeholder="그룹장">
-      </div>
-        <script>
-          $('.ui.selection.dropdown').dropdown();
-        </script> 
       <br>
       <button class="ui primary button" type="submit" value="JOIN">가입</button>
     </form>  		
@@ -84,15 +77,23 @@ router.get('/createGroup', function (request, response) {
 })
 
 // 그룹 만들기 처리 페이지
-router.post('/group_process', function (request, response) {
-  /*
-  var post = request.body;
-  var description = "";
-  var que = `INSERT INTO Member (email, passwd, krname, belong, nickname, member_type) VALUES("${post.ID}", HEX(AES_ENCRYPT('${post.pwd}', MD5('comeducocoa'))), "${post.username}", "${post.belong}", "${post.nickname}", ${post.group});`;
+router.post('/createGroupProcess', function (request, response) {
+  let post = request.body;
+  console.log(post);
+  let on = (post.groupopen==="on")?1:0;
+  console.log(on);
+  let que = `INSERT INTO Groups (group_name, group_admin, group_open) VALUES("${post.groupname}", ${auth.getMemberId(request, response)}, ${on});`;
   connection.query(que, function (err, result) {
-    response.redirect(`/`);
+    que = `SELECT group_id from Groups ORDER BY group_id DESC LIMIT 1;`;
+    connection.query(que, function (err, result){
+      console.log(result[0]);
+      que = `INSERT INTO GroupAttend (attend_status, attend_group, attend_member) VALUES(2, ${result[0].group_id}, ${auth.getMemberId(request, response)});`;
+      connection.query(que, function (err, result){
+        console.log("no3");
+        response.redirect(`/group`);
+      });
+    });
   });
-  */
 });
 
 /* 세부 그룹 관련*/
