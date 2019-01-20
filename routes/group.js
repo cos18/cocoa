@@ -39,9 +39,35 @@ router.get('/myGroup', function(request, response){
 })
 //그룹 만들기
 router.get('/createGroup', function(request, response){
-    var createGroupTemplate;
+  /* 그룹 양식
+    그룹 이름:
+    공개/비공개 여부: radiobutton 1(체크):공개 0(비체크):비공개
+    그룹장:
+  */  
+  var createGroupTemplate=
+    `
+    <form method="post" class="ui form" action="/group_process" onsubmit="return checkForm(this);">
+      <div class="field">
+        <label>그룹 이름</label>
+        <input type="text" name="groupname" placeholder="그룹명">
+      </div>
+      <div class="field">
+        <label>공개 여부</label>
+        <input type="checkbox" name="groupopen">
+      </div>
+      <div class="field">
+        <label>그룹장</label>
+        <input type="text" name="groupleader" placeholder="그룹장">
+      </div>
+        <script>
+          $('.ui.selection.dropdown').dropdown();
+        </script> 
+      <br>
+      <button class="ui primary button" type="submit" value="JOIN">가입</button>
+    </form>  		
+    `;
     if(auth.isOwner(request, response)){
-        var html = template.group('그룹 만들기', '그룹 만들기 양식', template.topbar(request, response, "Group")); //'그룹 만들기 양식' 항목에 만드는 양식이 들어가야함
+        var html = template.group('그룹 만들기',createGroupTemplate, template.topbar(request, response, "Group")); //'그룹 만들기 양식' 항목에 만드는 양식이 들어가야함
         response.send(html);
       } else {
         console.log("login error!");
