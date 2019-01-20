@@ -46,7 +46,7 @@ router.get('/createGroup', function(request, response){
   */  
   var createGroupTemplate=
     `
-    <form method="post" class="ui form" action="/group_process" onsubmit="return checkForm(this);">
+    <form method="post" class="ui form" action="/group/group_process" onsubmit="return checkForm(this);">
       <div class="field">
         <label>그룹 이름</label>
         <input type="text" name="groupname" placeholder="그룹명">
@@ -79,6 +79,17 @@ router.get('/createGroup', function(request, response){
     
 })
 
+// 그룹 만들기 처리 페이지
+router.post('/group_process', function (request, response) {
+  /*
+  var post = request.body;
+  var description = "";
+  var que = `INSERT INTO Member (email, passwd, krname, belong, nickname, member_type) VALUES("${post.ID}", HEX(AES_ENCRYPT('${post.pwd}', MD5('comeducocoa'))), "${post.username}", "${post.belong}", "${post.nickname}", ${post.group});`;
+  connection.query(que, function (err, result) {
+    response.redirect(`/`);
+  });
+  */
+});
 
 
 module.exports = router;
