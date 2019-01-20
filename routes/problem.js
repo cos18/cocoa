@@ -303,4 +303,6 @@ router.get('/:problem_id', function (request, response) {
   }
 })
 
+// await fs.readFile(`problem/${pb_id}/info.txt`, 'utf8')
+
 module.exports = router;

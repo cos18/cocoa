@@ -8,45 +8,49 @@ var auth = require('../lib/auth.js');
 var connection = mysql_con.init();
 
 //전체 그룹
-router.get('/', function(request, response){
-    var everyGroupPage;
-    if(auth.isOwner(request, response)){
-        var html = template.group('전체 그룹', '전체 그룹 페이지', template.topbar(request, response), "Group"); //'전체 그룹 페이지' 항목에 그룹 목록이 들어가야함
-        response.send(html);
-      } else {
-        console.log("login error!");
-          response.writeHead(302, {
-            Location: `/auth/login?error=nologin`
-          });
-          response.end();
-      }
-    
+router.get('/', function (request, response) {
+  let groupListView;
+  if (auth.isOwner(request, response)) {
+    var stmt = 'select * from Groups';
+    connection.query(stmt, function (err, result) {
+      groupListView = template.group_list(result, request, response);
+      var html = template.group('전체 그룹', groupListView, template.topbar(request, response), 'Group'); //'전체 그룹 페이지' 항목에 그룹 목록이 들어가야함
+      response.send(html);
+    });
+  } else {
+    console.log("login error!");
+    response.writeHead(302, {
+      Location: `/auth/login?error=nologin`
+    });
+    response.end();
+  }
+
 })
 //내 그룹
-router.get('/myGroup', function(request, response){
-    var myGroupPage;
-    if(auth.isOwner(request, response)){
-        var html = template.group('내 그룹', '내가 속한 그룹', template.topbar(request, response), "Group"); //'내가 속한 그룹' 항목에 그룹 목록이 들어가야함
-        response.send(html);
-      } else {
-        console.log("login error!");
-          response.writeHead(302, {
-            Location: `/auth/login?error=nologin`
-          });
-          response.end();
-      }
-    
+router.get('/myGroup', function (request, response) {
+  var myGroupPage;
+  if (auth.isOwner(request, response)) {
+    var html = template.group('내 그룹', '내가 속한 그룹', template.topbar(request, response), "Group"); //'내가 속한 그룹' 항목에 그룹 목록이 들어가야함
+    response.send(html);
+  } else {
+    console.log("login error!");
+    response.writeHead(302, {
+      Location: `/auth/login?error=nologin`
+    });
+    response.end();
+  }
+
 })
 //그룹 만들기
-router.get('/createGroup', function(request, response){
+router.get('/createGroup', function (request, response) {
   /* 그룹 양식
     그룹 이름:
     공개/비공개 여부: radiobutton 1(체크):공개 0(비체크):비공개
     그룹장:
-  */  
-  var createGroupTemplate=
+  */
+  var createGroupTemplate =
     `
-    <form method="post" class="ui form" action="/group/group_process" onsubmit="return checkForm(this);">
+    <form method="post" class="ui form" action="/group/group_process" onsubmit="">
       <div class="field">
         <label>그룹 이름</label>
         <input type="text" name="groupname" placeholder="그룹명">
@@ -66,17 +70,17 @@ router.get('/createGroup', function(request, response){
       <button class="ui primary button" type="submit" value="JOIN">가입</button>
     </form>  		
     `;
-    if(auth.isOwner(request, response)){
-        var html = template.group('그룹 만들기',createGroupTemplate, template.topbar(request, response), "Group"); //'그룹 만들기 양식' 항목에 만드는 양식이 들어가야함
-        response.send(html);
-      } else {
-        console.log("login error!");
-          response.writeHead(302, {
-            Location: `/auth/login?error=nologin`
-          });
-          response.end();
-      }
-    
+  if (auth.isOwner(request, response)) {
+    var html = template.group('그룹 만들기', createGroupTemplate, template.topbar(request, response), "Group"); //'그룹 만들기 양식' 항목에 만드는 양식이 들어가야함
+    response.send(html);
+  } else {
+    console.log("login error!");
+    response.writeHead(302, {
+      Location: `/auth/login?error=nologin`
+    });
+    response.end();
+  }
+
 })
 
 // 그룹 만들기 처리 페이지
@@ -115,6 +119,12 @@ router.get('/qna/:group_id', function(request, response){
   }
   
   });
+
+  // 그룹 신청 확인 페이지
+router.get('/attend/:group_id', function (request, response) {
+
+});
+
 
   // 세부 그룹 코드리뷰확인 페이지
   router.get('/review/:group_id', function(request, response){
