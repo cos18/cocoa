@@ -138,10 +138,11 @@ router.get('/notification', function(request, response){
 // 개인정보 수정 페이지
 router.get('/info', function(request, response){
   if(auth.isOwner(request, response)){
+    
     var changeInfo = `
     <div class="eight wide column">
       <div class="ui input">
-        <input type="text" placeholder="Nickname to change">
+        <input type="text" placeholder="Nickname to change" id="nick">
       </div>
       <div class="ui left pointing label">
         변경할 별명을 입력해주세요!
@@ -150,16 +151,16 @@ router.get('/info', function(request, response){
       <br><br><div class="ui divider"></div><br>
 
       <div class="ui input">
-        <input type="text" placeholder="Password to change">
+        <input type="password" placeholder="Password to change" id="pass">
       </div>
       <div class="ui left pointing label">
         변경할 비밀번호를 입력해주세요!
       </div>
-
-      <br><br><div class="ui divider"></div><br>
+      <br><br>
+      <!-- <br><br><div class="ui divider"></div><br> -->
 
       <div class="ui input">
-        <input type="text" placeholder="Confirm password to change">
+        <input type="text" placeholder="Confirm password to change" id="passagain">
       </div>
       <div class="ui left pointing label">
         변경할 비밀번호를 한번 더 입력해주세요!
@@ -179,6 +180,9 @@ router.get('/info', function(request, response){
         정보 수정!
       </button>
     </div>
+    <script>
+      function 
+    </script>
     `
     var html = template.mypage("개인정보 수정", changeInfo, template.topbar(request, response, "My page"));
     response.send(html);
@@ -192,3 +196,7 @@ router.get('/info', function(request, response){
 })
 
 module.exports = router;
+
+function onChangeInfo(){
+
+}
