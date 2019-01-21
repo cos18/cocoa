@@ -15,8 +15,6 @@
 }
 body{
     align-content : center;
-    margin-left : 100px;
-    margin-right : 100px;
     padding : 10px;
     height : 1000px;
 }
@@ -54,4 +52,8 @@ a {
     width : 80%;
     margin : 0px;
     float:right;
+}
+.coblock{
+    padding-top: 30px;
+    padding-bottom: 30px;
 }
