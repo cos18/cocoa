@@ -46,13 +46,13 @@ app.use('/group',groupRouter);
 app.get('/', function (request, response) {
   let main = `
   <div class="ui vertical masthead center aligned segment">
-    <div class="ui text container" style="margin-top:140px; margin-bottom:100px;">
+    <div class="ui text container" >
       <h1 class="ui header" style="font-size: 55px">
         COmputer COding Artist
       </h1>
       <h3>이곳에서 여러분의 꿈을 시작해보세요!</h2>
       <br>
-      <div class="ui big primary button">시작하기 <i class="right arrow icon"></i></div>
+      <div class="ui big primary button">시작하기 <i class="arrow right icon"></i></div>
     </div>
   </div>
   <div class="coblock ui vertical stripe segment">
@@ -70,7 +70,7 @@ app.get('/', function (request, response) {
       </div>
       <div class="row">
         <div class="center aligned column">
-          <a class="ui large button">문제 보러가기</a>
+          <a class="ui large button" href="problem">문제 보러가기</a>
         </div>
       </div>
     </div>
@@ -85,8 +85,12 @@ app.get('/', function (request, response) {
         <div class="column">
           <h3>"I shouldn't have gone with their competitor."</h3>
           <p>
-            <img src="assets/images/avatar/nan.jpg" class="ui avatar image"> <b>Nan</b> Chief Fun Officer Acme Toys
+            
           </p>
+        </div>
+        <div class="column">
+          <h3>"What a Company"</h3>
+          <p>That is what they all say about us</p>
         </div>
       </div>
     </div>
@@ -133,7 +137,7 @@ app.get('/', function (request, response) {
     </div>
   </div>
   `;
-  const html = template.HTML(main, template.topbar(request, response));
+  const html = template.HTML(main, template.topbar(request, response), "", 1);
   response.send(html);
 })
 
