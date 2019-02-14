@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var template = require('../lib/template.js');
 var sanitizeHtml = require('sanitize-html');
+var mysql_con = require('../db/db_con.js')();
 var connection = mysql_con.init();
 var func = require('../lib/function.js');
 
