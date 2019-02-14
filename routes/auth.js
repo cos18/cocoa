@@ -213,7 +213,7 @@ module.exports = function(passport){
       <h3>Join Session</h3>
   
   
-      <form method="post" class="ui form" action="/join_process" onsubmit="return checkForm(this);">
+      <form method="post" class="ui form" action="/auth/sjoin_process" onsubmit="return checkForm(this);">
         <div class="field">
           <label>아이디</label>
           <input type="email" name="ID" placeholder="Email">
